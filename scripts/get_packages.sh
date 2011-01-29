@@ -1,6 +1,6 @@
 # Install required packages 
-sudo apt-get install gcc g++ python2.7 git-all python-setuptools 
-sudo apt-get install mysql-server mysql-client postgresql
+sudo apt-get install gcc g++ python2.7 git-all
+sudo apt-get install postgresql
 
 # Get and install Django
 wget "http://www.djangoproject.com/download/1.2.4/tarball/"

@@ -16,3 +16,5 @@ ssh kljuca [odavdje](http://help.github.com/linux-key-setup/).
 Developeri
 ----------
 Anton Grbin
+Bruno Rahle
+
