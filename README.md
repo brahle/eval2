@@ -13,3 +13,6 @@ Prije nego je preuzmete, morate mi se javiti na [username]@gmail.com kako bih
 Vas dodao kao suradnika (collaborator) te morate slijediti upute o podesavanju
 ssh kljuca [odavdje](http://help.github.com/linux-key-setup/).
 
+Developeri
+----------
+Anton Grbin
