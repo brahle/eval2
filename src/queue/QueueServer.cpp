@@ -12,7 +12,6 @@
 #include <transport/TBufferTransports.h>
 
 #include "queue/QueueService.h"
-#include "queue/ThreadSafeQueue.h"
 
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
@@ -25,33 +24,99 @@ namespace eval {
 
 namespace queue {
 
-class Worker {
-  
+  /**
+   * Simple templated implementation of a synchronized queue.
+   * Simple because the only methods implemented are push, pop, size and empty.
+   */
+template <class T> class SyncedQueue {
+
  public:
+  SyncedQueue() {} 
+
+  void push(T &member) {
+    Guard g(lock_);
+    queue_.push(member);
+  }
+
+
+  T* pop() {
+    Guard g(lock_);
   
+    if(this->size() == 0) 
+      return NULL;
+
+    T &ret = queue_.front();
+    queue_.pop();
+    return &ret;
+  }
+
+  size_t size() {
+    Guard g(lock_);
+    return queue_.size();
+  }
+
+  bool empty() {
+    Guard g(lock_);
+    return queue_.empty();
+  };
+
+ private:
+  std::queue<T> queue_;
+  
+  apache::thrift::concurrency::Mutex lock_;
+
+};
+
+  /**
+   * Basic information about worker process - IP address and port.
+   * 'localhost' can stand instead of the IP address.
+   */
+class Worker { 
+
+ public:
+
+  /**
+   * Plain setter constructor.
+   */
   Worker(std::string ip, int port) : ip_(ip), port_(port) {}
     
-  inline std::string ip() {
-    return ip_;
-  }
-  
-  inline int port() {
-    return port_;
-  }
+  /**
+   * Returns worker's IP address.
+   */
+  inline std::string ip() {  return ip_;  }
+ 
+  /**
+   * Returns worker's port.
+   */
+  inline int port() {  return port_;  }
   
  private:
-  
   std::string ip_;  
   int port_;
   
 };
 
+  /**
+   * This is the class which does both the queue managment and
+   * listening for any new tasks. 
+   *
+   * Main methods are : addTask and freeWorker, which do all the job.
+   *
+   * Pinging the server is also available.
+   *
+   */
 class QueueServiceHandler : virtual public QueueServiceIf {
 
  public:
  
+  /**
+   * Default constructor.
+   */
   QueueServiceHandler() {}
 
+  /**
+   * One of RPC services, used to ping the server.
+   */
   bool ping() {
 
     // TODO write this async
@@ -59,25 +124,85 @@ class QueueServiceHandler : virtual public QueueServiceIf {
     return 1;
   }
 
+  /**
+   * One of the RPC services. 
+   * 
+   * Adds the task to the queue or assings a worker to complete it.
+   */
   void addTask(int taskId) {
     taskQueue_.push(taskId);
-    taskQueue_.size();
+    divideTasks();
   }
 
-  void freeWorkerThread(const int workerId) {
-    
+  /**
+   * One of the RPC services.
+   *
+   * Sets the worker status as unbusy and looks if there is any
+   * unassigned task to assign to the worker.
+   */
+  void freeWorker(int workerId) {
+    workerQueue_.push(workerId);
+    divideTasks();
   }
 
  private:
- 
+
+  /**
+   * Tries to take one unassigned task and a unbusy worker and assign
+   * the task to the worker.
+   *
+   * TODO such test if a loop is needed.
+   */
+  void divideTasks() {
+
+    int *worker = NULL;
+    int *task = NULL;
+
+    {
+      // need to make sure that only one thread tries to take all 
+      // resources at one moment
+      Guard g(divideMutex_);
+
+      worker = workerQueue_.pop();
+      task = taskQueue_.pop();
+
+      // free the taken resources
+      if(worker == NULL || task == NULL) {
+	if(worker != NULL) {
+	  workerQueue_.push(*worker);
+	}
+	if(task != NULL) {
+	  taskQueue_.push(*task);
+	}
+	
+	return; 
+      }
+    }
+
+    if(task != NULL && worker != NULL) {
+      // TODO send task to worker
+    }
+  }
+  
+  /**
+   * Queue of tasks not yet distributed.
+   */
   SyncedQueue<int> taskQueue_;
 
+  /**
+   * Queue of ready workers.
+   */
   SyncedQueue<int> workerQueue_;
 
-  std::vector<Worker> workers_;
+  /**
+   * Workers' information.
+   */
+  std::map<int, Worker> workers_;
   
-  Mutex queueMutex_;
-  
+  /**
+   * Mutex used in the procedure for dividing tasks among workers.
+   */
+  Mutex divideMutex_;
 };
 
 } // namespace
@@ -111,5 +236,7 @@ int main() {
   
   server.serve();
   
+  // TODO add the client side for worker service
+
   return 0;
 }

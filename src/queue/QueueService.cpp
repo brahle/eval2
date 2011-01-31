@@ -288,7 +288,7 @@ uint32_t QueueService_addTask_presult::read(::apache::thrift::protocol::TProtoco
   return xfer;
 }
 
-uint32_t QueueService_freeWorkerThread_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t QueueService_freeWorker_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -328,9 +328,9 @@ uint32_t QueueService_freeWorkerThread_args::read(::apache::thrift::protocol::TP
   return xfer;
 }
 
-uint32_t QueueService_freeWorkerThread_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t QueueService_freeWorker_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("QueueService_freeWorkerThread_args");
+  xfer += oprot->writeStructBegin("QueueService_freeWorker_args");
   xfer += oprot->writeFieldBegin("workerId", ::apache::thrift::protocol::T_I32, 1);
   xfer += oprot->writeI32(this->workerId);
   xfer += oprot->writeFieldEnd();
@@ -339,9 +339,9 @@ uint32_t QueueService_freeWorkerThread_args::write(::apache::thrift::protocol::T
   return xfer;
 }
 
-uint32_t QueueService_freeWorkerThread_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t QueueService_freeWorker_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("QueueService_freeWorkerThread_pargs");
+  xfer += oprot->writeStructBegin("QueueService_freeWorker_pargs");
   xfer += oprot->writeFieldBegin("workerId", ::apache::thrift::protocol::T_I32, 1);
   xfer += oprot->writeI32((*(this->workerId)));
   xfer += oprot->writeFieldEnd();
@@ -350,7 +350,7 @@ uint32_t QueueService_freeWorkerThread_pargs::write(::apache::thrift::protocol::
   return xfer;
 }
 
-uint32_t QueueService_freeWorkerThread_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t QueueService_freeWorker_result::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -382,18 +382,18 @@ uint32_t QueueService_freeWorkerThread_result::read(::apache::thrift::protocol::
   return xfer;
 }
 
-uint32_t QueueService_freeWorkerThread_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t QueueService_freeWorker_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("QueueService_freeWorkerThread_result");
+  xfer += oprot->writeStructBegin("QueueService_freeWorker_result");
 
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
 }
 
-uint32_t QueueService_freeWorkerThread_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t QueueService_freeWorker_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -539,18 +539,18 @@ void QueueServiceClient::recv_addTask()
   return;
 }
 
-void QueueServiceClient::freeWorkerThread(const int32_t workerId)
+void QueueServiceClient::freeWorker(const int32_t workerId)
 {
-  send_freeWorkerThread(workerId);
-  recv_freeWorkerThread();
+  send_freeWorker(workerId);
+  recv_freeWorker();
 }
 
-void QueueServiceClient::send_freeWorkerThread(const int32_t workerId)
+void QueueServiceClient::send_freeWorker(const int32_t workerId)
 {
   int32_t cseqid = 0;
-  oprot_->writeMessageBegin("freeWorkerThread", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("freeWorker", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  QueueService_freeWorkerThread_pargs args;
+  QueueService_freeWorker_pargs args;
   args.workerId = &workerId;
   args.write(oprot_);
 
@@ -559,7 +559,7 @@ void QueueServiceClient::send_freeWorkerThread(const int32_t workerId)
   oprot_->getTransport()->writeEnd();
 }
 
-void QueueServiceClient::recv_freeWorkerThread()
+void QueueServiceClient::recv_freeWorker()
 {
 
   int32_t rseqid = 0;
@@ -580,13 +580,13 @@ void QueueServiceClient::recv_freeWorkerThread()
     iprot_->getTransport()->readEnd();
     throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
-  if (fname.compare("freeWorkerThread") != 0) {
+  if (fname.compare("freeWorker") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
     throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
-  QueueService_freeWorkerThread_presult result;
+  QueueService_freeWorker_presult result;
   result.read(iprot_);
   iprot_->readMessageEnd();
   iprot_->getTransport()->readEnd();
@@ -694,19 +694,19 @@ void QueueServiceProcessor::process_addTask(int32_t seqid, ::apache::thrift::pro
   oprot->getTransport()->writeEnd();
 }
 
-void QueueServiceProcessor::process_freeWorkerThread(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void QueueServiceProcessor::process_freeWorker(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
 {
-  QueueService_freeWorkerThread_args args;
+  QueueService_freeWorker_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   iprot->getTransport()->readEnd();
 
-  QueueService_freeWorkerThread_result result;
+  QueueService_freeWorker_result result;
   try {
-    iface_->freeWorkerThread(args.workerId);
+    iface_->freeWorker(args.workerId);
   } catch (const std::exception& e) {
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("freeWorkerThread", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("freeWorker", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->flush();
@@ -714,7 +714,7 @@ void QueueServiceProcessor::process_freeWorkerThread(int32_t seqid, ::apache::th
     return;
   }
 
-  oprot->writeMessageBegin("freeWorkerThread", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("freeWorker", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   oprot->getTransport()->flush();

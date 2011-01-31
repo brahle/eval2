@@ -4,7 +4,7 @@ OBJ_DIR = ../../bin/queue
 
 THRIFT_DIR = /usr/local/include/thrift
 
-OBJS = QueueServer.o QueueService.o ThreadSafeQueue.o
+OBJS = QueueServer.o QueueService.o
 
 CXXFLAGS = -O3 -Wall
 

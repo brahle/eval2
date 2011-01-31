@@ -12,6 +12,6 @@ service QueueService {
   /**
    * Set the worker with the given ID as free and notifies all worker threads.
    */
-  void freeWorkerThread(1:i32 workerId)
+  void freeWorker(1:i32 workerId)
 
 }

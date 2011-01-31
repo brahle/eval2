@@ -3,22 +3,23 @@
  *
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  */
-#ifndef EVAL_QUEUE_SERVICE_H_
-#define EVAL_QUEUE_SERVICE_H_
+#ifndef QueueService_H
+#define QueueService_H
 
 #include <TProcessor.h>
 #include <Thrift.h>
 #include <TApplicationException.h>
-
 #include <protocol/TProtocol.h>
 #include <transport/TTransport.h>
+
+
 
 class QueueServiceIf {
  public:
   virtual ~QueueServiceIf() {}
   virtual bool ping() = 0;
   virtual void addTask(const int32_t taskId) = 0;
-  virtual void freeWorkerThread(const int32_t workerId) = 0;
+  virtual void freeWorker(const int32_t workerId) = 0;
 };
 
 class QueueServiceNull : virtual public QueueServiceIf {
@@ -31,7 +32,7 @@ class QueueServiceNull : virtual public QueueServiceIf {
   void addTask(const int32_t /* taskId */) {
     return;
   }
-  void freeWorkerThread(const int32_t /* workerId */) {
+  void freeWorker(const int32_t /* workerId */) {
     return;
   }
 };
@@ -210,34 +211,34 @@ class QueueService_addTask_presult {
 
 };
 
-typedef struct _QueueService_freeWorkerThread_args__isset {
-  _QueueService_freeWorkerThread_args__isset() : workerId(false) {}
+typedef struct _QueueService_freeWorker_args__isset {
+  _QueueService_freeWorker_args__isset() : workerId(false) {}
   bool workerId;
-} _QueueService_freeWorkerThread_args__isset;
+} _QueueService_freeWorker_args__isset;
 
-class QueueService_freeWorkerThread_args {
+class QueueService_freeWorker_args {
  public:
 
-  QueueService_freeWorkerThread_args() : workerId(0) {
+  QueueService_freeWorker_args() : workerId(0) {
   }
 
-  virtual ~QueueService_freeWorkerThread_args() throw() {}
+  virtual ~QueueService_freeWorker_args() throw() {}
 
   int32_t workerId;
 
-  _QueueService_freeWorkerThread_args__isset __isset;
+  _QueueService_freeWorker_args__isset __isset;
 
-  bool operator == (const QueueService_freeWorkerThread_args & rhs) const
+  bool operator == (const QueueService_freeWorker_args & rhs) const
   {
     if (!(workerId == rhs.workerId))
       return false;
     return true;
   }
-  bool operator != (const QueueService_freeWorkerThread_args &rhs) const {
+  bool operator != (const QueueService_freeWorker_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const QueueService_freeWorkerThread_args & ) const;
+  bool operator < (const QueueService_freeWorker_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -245,11 +246,11 @@ class QueueService_freeWorkerThread_args {
 };
 
 
-class QueueService_freeWorkerThread_pargs {
+class QueueService_freeWorker_pargs {
  public:
 
 
-  virtual ~QueueService_freeWorkerThread_pargs() throw() {}
+  virtual ~QueueService_freeWorker_pargs() throw() {}
 
   const int32_t* workerId;
 
@@ -258,24 +259,24 @@ class QueueService_freeWorkerThread_pargs {
 };
 
 
-class QueueService_freeWorkerThread_result {
+class QueueService_freeWorker_result {
  public:
 
-  QueueService_freeWorkerThread_result() {
+  QueueService_freeWorker_result() {
   }
 
-  virtual ~QueueService_freeWorkerThread_result() throw() {}
+  virtual ~QueueService_freeWorker_result() throw() {}
 
 
-  bool operator == (const QueueService_freeWorkerThread_result & /* rhs */) const
+  bool operator == (const QueueService_freeWorker_result & /* rhs */) const
   {
     return true;
   }
-  bool operator != (const QueueService_freeWorkerThread_result &rhs) const {
+  bool operator != (const QueueService_freeWorker_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const QueueService_freeWorkerThread_result & ) const;
+  bool operator < (const QueueService_freeWorker_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -283,11 +284,11 @@ class QueueService_freeWorkerThread_result {
 };
 
 
-class QueueService_freeWorkerThread_presult {
+class QueueService_freeWorker_presult {
  public:
 
 
-  virtual ~QueueService_freeWorkerThread_presult() throw() {}
+  virtual ~QueueService_freeWorker_presult() throw() {}
 
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
@@ -320,9 +321,9 @@ class QueueServiceClient : virtual public QueueServiceIf {
   void addTask(const int32_t taskId);
   void send_addTask(const int32_t taskId);
   void recv_addTask();
-  void freeWorkerThread(const int32_t workerId);
-  void send_freeWorkerThread(const int32_t workerId);
-  void recv_freeWorkerThread();
+  void freeWorker(const int32_t workerId);
+  void send_freeWorker(const int32_t workerId);
+  void recv_freeWorker();
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -338,13 +339,13 @@ class QueueServiceProcessor : virtual public ::apache::thrift::TProcessor {
   std::map<std::string, void (QueueServiceProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*)> processMap_;
   void process_ping(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
   void process_addTask(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_freeWorkerThread(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
+  void process_freeWorker(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
  public:
   QueueServiceProcessor(boost::shared_ptr<QueueServiceIf> iface) :
     iface_(iface) {
     processMap_["ping"] = &QueueServiceProcessor::process_ping;
     processMap_["addTask"] = &QueueServiceProcessor::process_addTask;
-    processMap_["freeWorkerThread"] = &QueueServiceProcessor::process_freeWorkerThread;
+    processMap_["freeWorker"] = &QueueServiceProcessor::process_freeWorker;
   }
 
   virtual bool process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot);
@@ -381,10 +382,10 @@ class QueueServiceMultiface : virtual public QueueServiceIf {
     }
   }
 
-  void freeWorkerThread(const int32_t workerId) {
+  void freeWorker(const int32_t workerId) {
     uint32_t sz = ifaces_.size();
     for (uint32_t i = 0; i < sz; ++i) {
-      ifaces_[i]->freeWorkerThread(workerId);
+      ifaces_[i]->freeWorker(workerId);
     }
   }
 
@@ -392,4 +393,4 @@ class QueueServiceMultiface : virtual public QueueServiceIf {
 
 
 
-#endif  // EVAL_QUEUE_SERVICE_H_
+#endif
