@@ -12,11 +12,12 @@
 #include <transport/TBufferTransports.h>
 
 #include "queue/QueueService.h"
+#include "queue/ThreadSafeQueue.h"
 
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 using namespace apache::thrift::server;
-using apache::thrift::concurrency::Guard;
+using namespace apache::thrift::concurrency;
 
 using boost::shared_ptr;
 
@@ -28,12 +29,8 @@ class Worker {
   
  public:
   
-  Worker(std::string ip, int port) : busy_(false), ip_(ip), port_(port) {}
-  
-  inline bool busy() { 
-    return busy_;
-  }
-  
+  Worker(std::string ip, int port) : ip_(ip), port_(port) {}
+    
   inline std::string ip() {
     return ip_;
   }
@@ -44,10 +41,7 @@ class Worker {
   
  private:
   
-  bool busy_;
-  
-  std::string ip_;
-  
+  std::string ip_;  
   int port_;
   
 };
@@ -59,27 +53,30 @@ class QueueServiceHandler : virtual public QueueServiceIf {
   QueueServiceHandler() {}
 
   bool ping() {
+
     // TODO write this async
+
     return 1;
   }
 
-  void addTask(const int taskId) {
-    Guard(this->queueMutex);
-    
-    
+  void addTask(int taskId) {
+    taskQueue_.push(taskId);
+    taskQueue_.size();
   }
 
   void freeWorkerThread(const int workerId) {
     
   }
-  
+
  private:
  
-  std::queue<int> taskQueue;
+  SyncedQueue<int> taskQueue_;
+
+  SyncedQueue<int> workerQueue_;
+
+  std::vector<Worker> workers_;
   
-  std::vector<Worker> workers;
-  
-  apache::thrift::concurrency::Mutex queueMutex;
+  Mutex queueMutex_;
   
 };
 
@@ -90,14 +87,27 @@ class QueueServiceHandler : virtual public QueueServiceIf {
 int main() {
   int port = 9090;
 
-  shared_ptr<eval::queue::QueueServiceHandler> handler(new eval::queue::QueueServiceHandler());
+  shared_ptr<eval::queue::QueueServiceHandler> handler(
+    new eval::queue::QueueServiceHandler());
   
-  shared_ptr<TProcessor> processor(new QueueServiceProcessor(handler));
-  shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
-  shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
-  shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
+  shared_ptr<TProcessor> processor(
+    new QueueServiceProcessor(handler));
 
-  TThreadedServer server(processor, serverTransport, transportFactory, protocolFactory);
+  shared_ptr<TServerTransport> serverTransport(
+    new TServerSocket(port));
+
+  shared_ptr<TTransportFactory> transportFactory(
+    new TBufferedTransportFactory());
+
+  shared_ptr<TProtocolFactory> protocolFactory(
+    new TBinaryProtocolFactory());
+
+  TThreadedServer server(
+			 processor, 
+			 serverTransport, 
+			 transportFactory, 
+			 protocolFactory
+			 );
   
   server.serve();
   

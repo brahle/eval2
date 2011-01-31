@@ -14,22 +14,20 @@ template <class T> class SyncedQueue {
 
  public:
  
-  SyncedQueue() { 
-//    this->queue_ = boost::scoped_ptr< std::queue<T> >(new std::queue<T>());
-  } 
+  SyncedQueue() {} 
  
-  void push(const T &member);
+  virtual void push(T &member);
   
-  T& pop();
+  T* pop();
   
-  virtual size_t size();
+  size_t size();
   
-  virtual bool empty();
+  bool empty();
       
  
  private:
  
-  boost::scoped_ptr< std::queue<T> > queue_;
+  std::queue<T> queue_;
   
   apache::thrift::concurrency::Mutex lock_;
 

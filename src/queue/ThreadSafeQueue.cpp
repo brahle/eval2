@@ -14,30 +14,35 @@ namespace eval {
 namespace queue {
 
 template<class T>
-void SyncedQueue<T>::push(const T &member) {
-  Guard(this->lock_);
-  queue_->push(member);
+void SyncedQueue<T>::push(T &member) {
+  Guard g(lock_);
+  queue_.push(member);
 }
 
 template<class T>
-T& SyncedQueue<T>::pop() {
-  Guard(this->lock_);
+T* SyncedQueue<T>::pop() {
+  Guard g(lock_);
   
-  return queue_->pop();
+  if(this->size() == 0) 
+    return NULL;
+
+  T &ret = queue_.front();
+  queue_.pop();
+  return &ret;
 }
 
 template<class T>
 size_t SyncedQueue<T>::size() {
-  Guard(this->lock_);
+  Guard g(lock_);
 
-  return queue_->size();
+  return queue_.size();
 }
 
 template<class T>
 bool SyncedQueue<T>::empty() {
-  Guard(this->lock_);
+  Guard g(lock_);
   
-  return queue_->empty();
+  return queue_.empty();
 };
 
 
