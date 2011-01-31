@@ -15,25 +15,32 @@ using namespace ::apache::thrift::server;
 
 using boost::shared_ptr;
 
-namespace eval { namespace queue { namespace server {
+namespace eval { 
+
+namespace queue {
+
 
 class QueueServiceHandler : virtual public QueueServiceIf {
 
  public:
  
   QueueServiceHandler() {
-    // TODO add thread-save queue
+    // XXX add synced queue
   }
 
   bool ping() {
-    // maybe write this non blocking
-    return true;
+    // XXX write this async
+    return 1;
   }
 
-  void addToQueue(const int submissionID, const int taskType, const std::string& payload) {
-   // TODO add request to non-existing queue
+  void addTask(const int32_t taskId) {
+    // XXX add to non-existing queue
   }
-  
+
+  void freeWorkerThread(const int32_t workerId) {
+    // XXX 
+  }
+
 };
 
 class QueueServer {
@@ -60,10 +67,11 @@ class QueueServer {
   
 };
 
-} } } // namespace
+} // namespace
 
+} // namespace
 
-int main(int argc, char **argv) {
-  return 0;
+int main() {
+  
+    return 0;
 }
-

@@ -4,6 +4,14 @@ service QueueService {
   
   bool ping(),
   
-  void addToQueue(1:i32 submissionID, 2:i32 taskType, 3:string payload)
+  /**
+   * Adds task to the queue.
+   */
+  void addTask(1:i32 taskId),
+  
+  /**
+   * Set the worker with the given ID as free and notifies all worker threads.
+   */
+  void freeWorkerThread(1:i32 workerId)
 
 }

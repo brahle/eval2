@@ -151,7 +151,7 @@ uint32_t QueueService_ping_presult::read(::apache::thrift::protocol::TProtocol* 
   return xfer;
 }
 
-uint32_t QueueService_addToQueue_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t QueueService_addTask_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -173,24 +173,8 @@ uint32_t QueueService_addToQueue_args::read(::apache::thrift::protocol::TProtoco
     {
       case 1:
         if (ftype == ::apache::thrift::protocol::T_I32) {
-          xfer += iprot->readI32(this->submissionID);
-          this->__isset.submissionID = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 2:
-        if (ftype == ::apache::thrift::protocol::T_I32) {
-          xfer += iprot->readI32(this->taskType);
-          this->__isset.taskType = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 3:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->payload);
-          this->__isset.payload = true;
+          xfer += iprot->readI32(this->taskId);
+          this->__isset.taskId = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -207,41 +191,29 @@ uint32_t QueueService_addToQueue_args::read(::apache::thrift::protocol::TProtoco
   return xfer;
 }
 
-uint32_t QueueService_addToQueue_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t QueueService_addTask_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("QueueService_addToQueue_args");
-  xfer += oprot->writeFieldBegin("submissionID", ::apache::thrift::protocol::T_I32, 1);
-  xfer += oprot->writeI32(this->submissionID);
-  xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("taskType", ::apache::thrift::protocol::T_I32, 2);
-  xfer += oprot->writeI32(this->taskType);
-  xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("payload", ::apache::thrift::protocol::T_STRING, 3);
-  xfer += oprot->writeString(this->payload);
+  xfer += oprot->writeStructBegin("QueueService_addTask_args");
+  xfer += oprot->writeFieldBegin("taskId", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32(this->taskId);
   xfer += oprot->writeFieldEnd();
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
 }
 
-uint32_t QueueService_addToQueue_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t QueueService_addTask_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("QueueService_addToQueue_pargs");
-  xfer += oprot->writeFieldBegin("submissionID", ::apache::thrift::protocol::T_I32, 1);
-  xfer += oprot->writeI32((*(this->submissionID)));
-  xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("taskType", ::apache::thrift::protocol::T_I32, 2);
-  xfer += oprot->writeI32((*(this->taskType)));
-  xfer += oprot->writeFieldEnd();
-  xfer += oprot->writeFieldBegin("payload", ::apache::thrift::protocol::T_STRING, 3);
-  xfer += oprot->writeString((*(this->payload)));
+  xfer += oprot->writeStructBegin("QueueService_addTask_pargs");
+  xfer += oprot->writeFieldBegin("taskId", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32((*(this->taskId)));
   xfer += oprot->writeFieldEnd();
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
 }
 
-uint32_t QueueService_addToQueue_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t QueueService_addTask_result::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -273,18 +245,155 @@ uint32_t QueueService_addToQueue_result::read(::apache::thrift::protocol::TProto
   return xfer;
 }
 
-uint32_t QueueService_addToQueue_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t QueueService_addTask_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("QueueService_addToQueue_result");
+  xfer += oprot->writeStructBegin("QueueService_addTask_result");
 
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
 }
 
-uint32_t QueueService_addToQueue_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t QueueService_addTask_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t QueueService_freeWorkerThread_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->workerId);
+          this->__isset.workerId = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t QueueService_freeWorkerThread_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("QueueService_freeWorkerThread_args");
+  xfer += oprot->writeFieldBegin("workerId", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32(this->workerId);
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t QueueService_freeWorkerThread_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+  uint32_t xfer = 0;
+  xfer += oprot->writeStructBegin("QueueService_freeWorkerThread_pargs");
+  xfer += oprot->writeFieldBegin("workerId", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32((*(this->workerId)));
+  xfer += oprot->writeFieldEnd();
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t QueueService_freeWorkerThread_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+uint32_t QueueService_freeWorkerThread_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("QueueService_freeWorkerThread_result");
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+uint32_t QueueService_freeWorkerThread_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -375,21 +484,19 @@ bool QueueServiceClient::recv_ping()
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "ping failed: unknown result");
 }
 
-void QueueServiceClient::addToQueue(const int32_t submissionID, const int32_t taskType, const std::string& payload)
+void QueueServiceClient::addTask(const int32_t taskId)
 {
-  send_addToQueue(submissionID, taskType, payload);
-  recv_addToQueue();
+  send_addTask(taskId);
+  recv_addTask();
 }
 
-void QueueServiceClient::send_addToQueue(const int32_t submissionID, const int32_t taskType, const std::string& payload)
+void QueueServiceClient::send_addTask(const int32_t taskId)
 {
   int32_t cseqid = 0;
-  oprot_->writeMessageBegin("addToQueue", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("addTask", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  QueueService_addToQueue_pargs args;
-  args.submissionID = &submissionID;
-  args.taskType = &taskType;
-  args.payload = &payload;
+  QueueService_addTask_pargs args;
+  args.taskId = &taskId;
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
@@ -397,7 +504,7 @@ void QueueServiceClient::send_addToQueue(const int32_t submissionID, const int32
   oprot_->getTransport()->writeEnd();
 }
 
-void QueueServiceClient::recv_addToQueue()
+void QueueServiceClient::recv_addTask()
 {
 
   int32_t rseqid = 0;
@@ -418,13 +525,68 @@ void QueueServiceClient::recv_addToQueue()
     iprot_->getTransport()->readEnd();
     throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
-  if (fname.compare("addToQueue") != 0) {
+  if (fname.compare("addTask") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
     throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
-  QueueService_addToQueue_presult result;
+  QueueService_addTask_presult result;
+  result.read(iprot_);
+  iprot_->readMessageEnd();
+  iprot_->getTransport()->readEnd();
+
+  return;
+}
+
+void QueueServiceClient::freeWorkerThread(const int32_t workerId)
+{
+  send_freeWorkerThread(workerId);
+  recv_freeWorkerThread();
+}
+
+void QueueServiceClient::send_freeWorkerThread(const int32_t workerId)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("freeWorkerThread", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  QueueService_freeWorkerThread_pargs args;
+  args.workerId = &workerId;
+  args.write(oprot_);
+
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->flush();
+  oprot_->getTransport()->writeEnd();
+}
+
+void QueueServiceClient::recv_freeWorkerThread()
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(iprot_);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
+  }
+  if (fname.compare("freeWorkerThread") != 0) {
+    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    iprot_->readMessageEnd();
+    iprot_->getTransport()->readEnd();
+    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
+  }
+  QueueService_freeWorkerThread_presult result;
   result.read(iprot_);
   iprot_->readMessageEnd();
   iprot_->getTransport()->readEnd();
@@ -505,19 +667,19 @@ void QueueServiceProcessor::process_ping(int32_t seqid, ::apache::thrift::protoc
   oprot->getTransport()->writeEnd();
 }
 
-void QueueServiceProcessor::process_addToQueue(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void QueueServiceProcessor::process_addTask(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
 {
-  QueueService_addToQueue_args args;
+  QueueService_addTask_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   iprot->getTransport()->readEnd();
 
-  QueueService_addToQueue_result result;
+  QueueService_addTask_result result;
   try {
-    iface_->addToQueue(args.submissionID, args.taskType, args.payload);
+    iface_->addTask(args.taskId);
   } catch (const std::exception& e) {
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("addToQueue", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("addTask", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->flush();
@@ -525,7 +687,34 @@ void QueueServiceProcessor::process_addToQueue(int32_t seqid, ::apache::thrift::
     return;
   }
 
-  oprot->writeMessageBegin("addToQueue", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("addTask", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  oprot->getTransport()->flush();
+  oprot->getTransport()->writeEnd();
+}
+
+void QueueServiceProcessor::process_freeWorkerThread(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+{
+  QueueService_freeWorkerThread_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  iprot->getTransport()->readEnd();
+
+  QueueService_freeWorkerThread_result result;
+  try {
+    iface_->freeWorkerThread(args.workerId);
+  } catch (const std::exception& e) {
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("freeWorkerThread", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->flush();
+    oprot->getTransport()->writeEnd();
+    return;
+  }
+
+  oprot->writeMessageBegin("freeWorkerThread", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   oprot->getTransport()->flush();
