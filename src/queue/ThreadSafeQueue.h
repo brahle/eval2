@@ -1,22 +1,38 @@
 #ifndef EVAL_QUEUE_SYNCED_QUEUE_H_
 #define EVAL_QUEUE_SYNCED_QUEUE_H_
 
+#include <queue>
+
+#include <boost/scoped_ptr.hpp>
+#include <thrift/concurrency/Mutex.h>
+
 namespace eval {
 
 namespace queue {
 
-template <class T> class SyncedQueueIf {
+template <class T> class SyncedQueue {
 
  public:
  
-  virtual void push(const T &member) = 0;
+  SyncedQueue() { 
+//    this->queue_ = boost::scoped_ptr< std::queue<T> >(new std::queue<T>());
+  } 
+ 
+  void push(const T &member);
   
-  virtual T pop() = 0;
+  T& pop();
   
-  virtual size_t size() = 0;
+  virtual size_t size();
   
-  virtual bool empty() = 0;
+  virtual bool empty();
       
+ 
+ private:
+ 
+  boost::scoped_ptr< std::queue<T> > queue_;
+  
+  apache::thrift::concurrency::Mutex lock_;
+
 };
 
 } // namespace

@@ -13,43 +13,33 @@ namespace eval {
 
 namespace queue {
 
-template<class T> class SyncedQueue : SyncedQueueIf<T> {
- public:
-   
-  SyncedQueue() {
-    queue_ = scoped_ptr< std::queue<T> >(new std::queue<T>());
-  }
-   
-  void push(const T &member) {
-    Guard(this->lock_);
-    queue_->push(member);
-  }
-  
-  T& pop() {
-    Guard(this->lock_);
-    
-    return queue_->pop();
-  }
-  
-  size_t size() {
-    Guard(this->lock_);
+template<class T>
+void SyncedQueue<T>::push(const T &member) {
+  Guard(this->lock_);
+  queue_->push(member);
+}
 
-    return queue_->size();
-  }
+template<class T>
+T& SyncedQueue<T>::pop() {
+  Guard(this->lock_);
   
-  bool empty() {
-    Guard(this->lock_);
-    
-    return queue_->empty();
-  };
- 
- private:
- 
-  scoped_ptr< std::queue<T> > queue_;
+  return queue_->pop();
+}
+
+template<class T>
+size_t SyncedQueue<T>::size() {
+  Guard(this->lock_);
+
+  return queue_->size();
+}
+
+template<class T>
+bool SyncedQueue<T>::empty() {
+  Guard(this->lock_);
   
-  Mutex lock_;
-  
+  return queue_->empty();
 };
+
 
 } // namespace
 
