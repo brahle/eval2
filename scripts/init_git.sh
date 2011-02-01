@@ -30,4 +30,3 @@ git config color.branch auto
 git config color.diff auto
 git config color.interactive auto
 git config color.status auto
-
