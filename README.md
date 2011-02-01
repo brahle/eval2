@@ -39,8 +39,8 @@ We will be using
 [Google style guide](http://code.google.com/p/google-styleguide/) as our
 refernce. For more details, please visit language specific sections of it:
 
-[*] [C++](http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml)
-[*] [Python](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
+* [C++](http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml)
+* [Python](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
 
 
 Code Review
@@ -55,8 +55,8 @@ Developers
 
 Sorted in alphabetical order:
 
-[*] Anton Grbin
-[*] Matija Osrecki
-[*] Ivan Pilat
-[*] Bruno Rahle
+* Anton Grbin
+* Matija Osrecki
+* Ivan Pilat
+* Bruno Rahle
 
