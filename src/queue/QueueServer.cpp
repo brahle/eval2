@@ -39,15 +39,15 @@ template <class T> class SyncedQueue {
   }
 
 
-  T* pop() {
+  T pop() throw(int) {
     Guard g(lock_);
   
-    if(this->size() == 0) 
-      return NULL;
+    if(queue_.size() == 0) 
+      throw 1;
 
-    T &ret = queue_.front();
+    T ret = queue_.front();
     queue_.pop();
-    return &ret;
+    return ret;
   }
 
   size_t size() {
@@ -74,6 +74,11 @@ template <class T> class SyncedQueue {
 class Worker { 
 
  public:
+
+  /**
+   * Default contructor.
+   */
+  Worker() {}
 
   /**
    * Plain setter constructor.
@@ -145,6 +150,15 @@ class QueueServiceHandler : virtual public QueueServiceIf {
     divideTasks();
   }
 
+  void registerWorker(int workerId, const Worker& workerData) throw(int) {
+    
+    if(workers_.find(workerId) != workers_.end() ) {
+      throw 1;
+    }
+
+    workers_[workerId] = workerData;
+  }
+
  private:
 
   /**
@@ -155,33 +169,28 @@ class QueueServiceHandler : virtual public QueueServiceIf {
    */
   void divideTasks() {
 
-    int *worker = NULL;
-    int *task = NULL;
+    int worker;
+    int task;
 
     {
       // need to make sure that only one thread tries to take all 
       // resources at one moment
       Guard g(divideMutex_);
 
-      worker = workerQueue_.pop();
-      task = taskQueue_.pop();
+      try {
+	worker = workerQueue_.pop();
+      } catch(int) {
+	return;
+      }
 
-      // free the taken resources
-      if(worker == NULL || task == NULL) {
-	if(worker != NULL) {
-	  workerQueue_.push(*worker);
-	}
-	if(task != NULL) {
-	  taskQueue_.push(*task);
-	}
-	
-	return; 
+      try {
+	task = taskQueue_.pop();
+      } catch(int) {
+	return;
       }
     }
 
-    if(task != NULL && worker != NULL) {
-      // TODO send task to worker
-    }
+    // TODO send task to worker
   }
   
   /**
