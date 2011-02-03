@@ -18,3 +18,4 @@ Developeri
 Anton Grbin
 Bruno Rahle
 Matija Osrecki
+Frane Kurtovic
