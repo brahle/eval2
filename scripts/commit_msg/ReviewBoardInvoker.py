@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.1
 from CommitMessage import CommitMessage
 
 import os, re, sys
@@ -24,30 +24,31 @@ class ReviewBoardInvoker(object):
         self.command = 'post-review --parent=HEAD^ -p'
 
         if 'title' in msg:
-            self.command = self.command + ' --summary="' + msg['title'] + '"'
+            self.command = self.command + ' --summary=' + str(msg['title'])
         if 'summary' in msg:
             file_name = '/tmp/eval2-RB-description'
-            self.write_to_file(file_name, msg['summary'])
+            self.write_to_file(file_name, msg['summary'].get_value())
             self.command = self.command + ' --description-file=' + file_name
         if 'reviewers' in msg:
             self.command = (self.command + ' --target-people=' +
-                            self.list_format(msg['reviewers']))
+                            str(msg['reviewers']))
         if 'tickets' in msg:
             self.command = (self.command + ' --bugs-closed=' +
-                            self.list_format(msg['tickets']))
+                            str(msg['tickets']))
         if 'reviewboardid' in msg:
-            self.command = self.command + ' -r' + msg['reviewboardid']
+            self.command = self.command + ' -r' + str(msg['reviewboardid'])
 
     def invoke(self):
         self.prepare()
         file_name = '/tmp/eval2-RB-result'
         self.command = self.command + ' >' + file_name
-        print self.command
+        print(self.command)
 
         if os.system(self.command) != 0:
-            print "[ABORT] post-review failed!!!"
-            print "See " + file_name + " for details"
-            sys.exit(1)
+            print("[WARNING] post-review failed!!!")
+            print("See", file_name, "for details")
+            self.reviewboard_id = -1
+            return
 
         # Get the ReviewBoard ID from the message
         f = open(file_name, 'r')
@@ -55,8 +56,8 @@ class ReviewBoardInvoker(object):
         pattern = re.compile('Review request #(?P<id>\d+) posted.')
         match = pattern.match(line)
         if match is None:
-            print "[ABORT] post-review failed!!!"
-            print "See " + file_name + " for details"
+            print("[ABORT] post-review failed!!!")
+            print("See ", file_name, " for details")
             sys.exit(1)
         self.reviewboard_id = int(match.group('id'))
 
@@ -84,7 +85,6 @@ def main():
     commit_message = CommitMessage(message)
     rbi = ReviewBoardInvoker(commit_message)
     rbi.invoke()
-    print rbi.get_reviewboard_id()
 
 
 if __name__ == '__main__':

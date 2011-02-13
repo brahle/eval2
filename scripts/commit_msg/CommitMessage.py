@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+#!/usr/bin/env python3.1
+# Copyright 2011 Bruno Rahle
+#
+# TODO: paste copy statement
+# TODO: documentation cleanup
+
+from Fields import IntegerField, StringField, ListField
 
 import re, sys
 
@@ -6,9 +13,18 @@ class CommitMessage(object):
     """This class is used to parse the commit message.
     TODO: write an example
     """
-    ALLOWED_FIELDS = ['title', 'summary', 'tags', 'reviewers',
-                      'groups', 'blamed revisions', 'tickets',
-                      'reviewboardid', 'skip reviewboard']
+    ALLOWED_FIELDS = [
+        ('title',               StringField,    True),
+        ('summary',             StringField,    True),
+        ('tags',                ListField,      False),
+        ('reviewers',           ListField,      True),
+        ('groups',              ListField,      False),
+        ('ccs',                 ListField,      False),
+        ('blamed revisions',    ListField,      False),
+        ('tickets',             ListField,      False),
+        ('reviewboardid',       IntegerField,   False),
+        ('skip reviewboard',    StringField,    False),
+    ]
 
     def __init__(self, message, allowed_fields=None):
         if allowed_fields is None:
@@ -26,9 +42,9 @@ class CommitMessage(object):
         self.fields = dict()
         pattern = re.compile('^(?P<field>[\w\s]+):(?P<value>.*)')
 
-        field_pattern_str = '^('
+        field_pattern_str = '^\W*('
         for field in allowed_fields:
-            field_pattern_str = field_pattern_str + field + '|'
+            field_pattern_str = field_pattern_str + field[0] + '|'
         field_pattern_str = field_pattern_str.strip('|') + ')$'
         field_pattern = re.compile(field_pattern_str, re.IGNORECASE)
 
@@ -43,21 +59,25 @@ class CommitMessage(object):
                 field = match.group('field')
                 field_match = field_pattern.match(field)
                 if field_match is not None:
-                    current_field = match.group('field').lower()
+                    current_field = match.group('field').lower().strip()
                     line = match.group('value').strip()
 
             if current_field in self.fields:
-                 new_value = self.fields[current_field] + '\n' + line.strip()
+                 new_value = self.fields[current_field] + '\n' + line.rstrip()
             else:
-                 new_value = line.strip()
+                 new_value = line.rstrip()
             self.fields[current_field] = new_value
 
-        for field in self.fields:
-            self.fields[field] = self.fields[field].strip()
-
-        if 'reviewers' not in self.fields or len(self.fields['reviewers'])==0:
-            print '[ABORTING] Please specify reviewers!'
-            sys.exit(1)
+        for field in allowed_fields:
+            if field[0] in self.fields:
+                self.fields[field[0]] = field[1](self.fields[field[0]])
+                if field[2]:
+                    if not self.fields[field[0]].nonempty():
+                        print('[ABORT] Field', field[0].upper(), 'is required!')
+                        sys.exit(1)
+            elif field[2]:
+                print('[ABORT] Field', field[0].upper(), 'is required!')
+                sys.exit(1)
 
         return self.fields
 
@@ -67,11 +87,17 @@ def main():
 
               Summary: This is the summary of the sample message.
               This is a multi line one!
+
+                Some empty lines...
+                # and some this be comment
+
               Hoax field: just testing it.
 
               Tags: tag1, tag2
 
-              Reviewers: john, paul, peter
+              Reviewers: john, paul, peter,
+
+                somebodyelse
 
               CCs: mark, lucas
 
@@ -82,7 +108,8 @@ def main():
 
     commit_message = CommitMessage(message)
     for field in commit_message.fields:
-        print '%s: %s\n' % (field, commit_message.fields[field])
+        print('%s: %s' % (field, commit_message.fields[field]))
 
 if __name__ == '__main__':
     main()
+
