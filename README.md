@@ -59,4 +59,5 @@ Sorted in alphabetical order:
 * Matija Osrecki
 * Ivan Pilat
 * Bruno Rahle
+* Alen Rakipovic
 
