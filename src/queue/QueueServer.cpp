@@ -1,5 +1,7 @@
 /**
- * TODO add licence
+ * Copyright 2011 Matija Osrecki
+ *
+ * TODO copy notice
  */
 
 #include <queue>
@@ -12,60 +14,17 @@
 #include <transport/TBufferTransports.h>
 
 #include "queue/QueueService.h"
+#include "queue/SyncedQueue.hpp"
 
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 using namespace apache::thrift::server;
-using namespace apache::thrift::concurrency;
+using apache::thrift::concurrency::Mutex;
+using apache::thrift::concurrency::Guard;
 
 using boost::shared_ptr;
 
 namespace eval { 
-
-namespace queue {
-
-  /**
-   * Simple templated implementation of a synchronized queue.
-   * Simple because the only methods implemented are push, pop, size and empty.
-   */
-template <class T> class SyncedQueue {
-
- public:
-  SyncedQueue() {} 
-
-  void push(T &member) {
-    Guard g(lock_);
-    queue_.push(member);
-  }
-
-
-  T pop() throw(int) {
-    Guard g(lock_);
-  
-    if(queue_.size() == 0) 
-      throw 1;
-
-    T ret = queue_.front();
-    queue_.pop();
-    return ret;
-  }
-
-  size_t size() {
-    Guard g(lock_);
-    return queue_.size();
-  }
-
-  bool empty() {
-    Guard g(lock_);
-    return queue_.empty();
-  };
-
- private:
-  std::queue<T> queue_;
-  
-  apache::thrift::concurrency::Mutex lock_;
-
-};
 
   /**
    * Basic information about worker process - IP address and port.
@@ -96,6 +55,7 @@ class Worker {
   inline int port() {  return port_;  }
   
  private:
+
   std::string ip_;  
   int port_;
   
@@ -150,13 +110,14 @@ class QueueServiceHandler : virtual public QueueServiceIf {
     divideTasks();
   }
 
-  void registerWorker(int workerId, const Worker& workerData) throw(int) {
+  void registerWorker(int workerId, const Worker& workerData) {
     
     if(workers_.find(workerId) != workers_.end() ) {
       throw 1;
     }
 
     workers_[workerId] = workerData;
+    workerQueue_.push(workerId);
   }
 
  private:
@@ -216,13 +177,11 @@ class QueueServiceHandler : virtual public QueueServiceIf {
 
 } // namespace
 
-} // namespace
-
 int main() {
   int port = 9090;
 
-  shared_ptr<eval::queue::QueueServiceHandler> handler(
-    new eval::queue::QueueServiceHandler());
+  shared_ptr<eval::QueueServiceHandler> handler(
+    new eval::QueueServiceHandler());
   
   shared_ptr<TProcessor> processor(
     new QueueServiceProcessor(handler));
