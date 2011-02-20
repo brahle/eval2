@@ -13,7 +13,8 @@
 #include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
 
-#include "queue/QueueService.h"
+#include "queue/gen-cpp/QueueService.h"
+
 #include "queue/SyncedQueue.hpp"
 
 using namespace apache::thrift::protocol;
@@ -110,14 +111,19 @@ class QueueServiceHandler : virtual public QueueServiceIf {
     divideTasks();
   }
 
-  void registerWorker(int workerId, const Worker& workerData) {
+  /**
+   * Registers a worker. Return 0 if everything went OK.
+   */
+  int registerWorker(int workerId, const std::string& ip, int port) {
     
     if(workers_.find(workerId) != workers_.end() ) {
-      throw 1;
+      return 1;
     }
 
-    workers_[workerId] = workerData;
+    workers_[workerId] = Worker(ip, port);
     workerQueue_.push(workerId);
+
+    return 0;
   }
 
  private:
