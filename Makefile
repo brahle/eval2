@@ -29,8 +29,5 @@ $(BIN_DIR)/QueueServer : $(addprefix $(OBJ_DIR)/, $(OBJS))
 $(OBJ_DIR)/%.o : %.cpp
 	g++ -c -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -I $(INC_DIR) -l thrift $<
 
-thrift : queue.thrift
-	thrift --gen cpp queue.thrift
-
 clean : 
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
