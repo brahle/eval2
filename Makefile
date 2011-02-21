@@ -1,36 +1,46 @@
+#
+# Copyright 2011 Matija Osrecki
+#
+# TODO copy notice
+#
+
 SHELL = /bin/bash
 
-# target programs and objects
+# target programs (components)
 
-TARGETS = QueueServer
-OBJS = QueueServer.o QueueService.o
+TARGETS = Queue Worker
 
 # folders and paths
 
 THRIFT_DIR = /usr/local/include/thrift
 OBJ_DIR = obj
 BIN_DIR = bin
-VPATH = src:src/queue:src/queue/gen-cpp
 INC_DIR = src
+
+VPATH = src:src/queue:src/queue/gen-cpp:src/worker:src/worker/gen-cpp
 
 # compiler flags
 
 CXXFLAGS = -O3 -Wall
 
-all : thrift dirs $(TARGETS)
+all : dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
 
 dirs :
 	if [ ! -d $(OBJ_DIR) ]; then mkdir $(OBJ_DIR); fi
 	if [ ! -d $(BIN_DIR) ]; then mkdir $(BIN_DIR); fi
 
-QueueServer : $(addprefix $(OBJ_DIR)/, $(OBJS))
-	g++ -o $(BIN_DIR)/$@ $(CXXFLAGS) -I $(THRIFT_DIR) -l thrift $^
+$(BIN_DIR)/Queue : $(addprefix $(OBJ_DIR)/, QueueServer.o QueueService.o)
+	g++ -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -l thrift $^
+
+$(BIN_DIR)/Worker : $(addprefix $(OBJ_DIR)/, WorkerServer.o WorkerService.o QueueService.o)
+	g++ -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -l thrift $^
 
 $(OBJ_DIR)/%.o : %.cpp
 	g++ -c -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -I $(INC_DIR) -l thrift $<
 
 thrift : queue.thrift
 	thrift --gen cpp -o src/queue src/queue/queue.thrift
+	thrift --gen cpp -o src/worker src/worker/worker.thrift
 
 clean : 
 	rm -rf $(OBJ_DIR) $(BIN_DIR)

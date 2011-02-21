@@ -6,8 +6,10 @@
 
 #include <protocol/TBinaryProtocol.h>
 #include <server/TSimpleServer.h>
-#include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
+#include <transport/TServerSocket.h>
+#include <transport/TSocket.h>
+#include <transport/TTransportUtils.h>
 
 #include "queue/gen-cpp/QueueService.h"
 #include "worker/gen-cpp/WorkerService.h"
@@ -29,29 +31,30 @@ class WorkerServiceHandler : virtual public WorkerServiceIf {
 
   bool ping() {
     // TODO implement
+    return true;
   }
 
   void giveTask(const int taskId) {
     // TODO implement work
-    sleep(5);
-    
-    
+    usleep(5);    
   }
 
 };
 
 } // namespace
 
-void registerSelf(int port) {
+void registerSelf(int id, int port) {
   shared_ptr<TTransport> socket(new TSocket("localhost", 9090));
   shared_ptr<TTransport> transport(new TBufferedTransport(socket));
   shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-  WorkerServiceClient client(protocol);
+  QueueServiceClient client(protocol);
 
   try {
     transport->open();
     
-    
+    client.ping();
+
+    client.registerWorker(id, "localhost", port);
     
     transport->close();
   } catch (TException &tx) {
@@ -86,16 +89,14 @@ void startServer(int port) {
 }
 
 int main(int argc, char **argv) {
-  if(argc != 2) {
-    printf("Program takes 1 argument: port");
-    return 1;
-  }
+  assert(argc == 3);
 
   // TODO read configuration: queue's ip+port, worker's ip+port or id
 
-  int port = atoi(argv[1]);
+  int id = atoi(argv[1]);
+  int port = atoi(argv[2]);
 
-  registerSelf(port);
+  registerSelf(id, port);
 
   startServer(port);
 

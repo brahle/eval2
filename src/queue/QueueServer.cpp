@@ -16,51 +16,18 @@
 #include "queue/gen-cpp/QueueService.h"
 
 #include "queue/SyncedQueue.hpp"
+#include "queue/Worker.hpp"
 
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 using namespace apache::thrift::server;
+
 using apache::thrift::concurrency::Mutex;
 using apache::thrift::concurrency::Guard;
 
 using boost::shared_ptr;
 
 namespace eval { 
-
-  /**
-   * Basic information about worker process - IP address and port.
-   * 'localhost' can stand instead of the IP address.
-   */
-class Worker { 
-
- public:
-
-  /**
-   * Default contructor.
-   */
-  Worker() {}
-
-  /**
-   * Plain setter constructor.
-   */
-  Worker(std::string ip, int port) : ip_(ip), port_(port) {}
-    
-  /**
-   * Returns worker's IP address.
-   */
-  inline std::string ip() {  return ip_;  }
- 
-  /**
-   * Returns worker's port.
-   */
-  inline int port() {  return port_;  }
-  
- private:
-
-  std::string ip_;  
-  int port_;
-  
-};
 
   /**
    * This is the class which does both the queue managment and
@@ -85,7 +52,7 @@ class QueueServiceHandler : virtual public QueueServiceIf {
    */
   bool ping() {
 
-    // TODO write this async
+    printf("Queue server. Piiinged.\n");
 
     return 1;
   }
@@ -112,6 +79,8 @@ class QueueServiceHandler : virtual public QueueServiceIf {
   }
 
   /**
+   * One of the RPC services.
+   *
    * Registers a worker. Return 0 if everything went OK.
    */
   int registerWorker(int workerId, const std::string& ip, int port) {
@@ -119,8 +88,13 @@ class QueueServiceHandler : virtual public QueueServiceIf {
     if(workers_.find(workerId) != workers_.end() ) {
       return 1;
     }
+    
+    {
+      Guard g(registerMutex_);
+      workers_[workerId] = Worker(ip, port);
+      printf("Worker %d registered. Ip '%s', port %d.\n", workerId, ip.c_str(), port);
+    }
 
-    workers_[workerId] = Worker(ip, port);
     workerQueue_.push(workerId);
 
     return 0;
@@ -179,13 +153,17 @@ class QueueServiceHandler : virtual public QueueServiceIf {
    * Mutex used in the procedure for dividing tasks among workers.
    */
   Mutex divideMutex_;
+
+
+  /**
+   * Used for registering workers.
+   */
+  Mutex registerMutex_;
 };
 
 } // namespace
 
-int main() {
-  int port = 9090;
-
+void startServer(int port) {
   shared_ptr<eval::QueueServiceHandler> handler(
     new eval::QueueServiceHandler());
   
@@ -209,6 +187,16 @@ int main() {
 			 );
   
   server.serve();
+}
+
+int main(int argc, char *argv[]) {
+  assert(argc == 2);
+
+  // TODO read server configuration
+
+  int port = atoi(argv[1]);
+
+  startServer(port);
   
   // TODO add the client side for worker service
 

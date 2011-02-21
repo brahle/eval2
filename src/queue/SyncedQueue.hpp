@@ -1,3 +1,9 @@
+/**
+ * Copyright 2011 Matija Osrecki
+ *
+ * TODO copy notice
+ */
+
 #ifndef EVAL_QUEUE_SYNCED_QUEUE_HPP_
 #define EVAL_QUEUE_SYNCED_QUEUE_HPP_
 
