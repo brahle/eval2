@@ -8,7 +8,7 @@ SHELL = /bin/bash
 
 # target programs (components)
 
-TARGETS = Queue Worker
+TARGETS = Queue Worker Tuna
 
 # folders and paths
 
@@ -17,13 +17,13 @@ OBJ_DIR = obj
 BIN_DIR = bin
 INC_DIR = src
 
-VPATH = src:src/queue:src/queue/gen-cpp:src/worker:src/worker/gen-cpp
+VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/worker/gen-cpp
 
 # compiler flags
 
 CXXFLAGS = -O3 -Wall
 
-all : dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
+all : dirs thrift $(addprefix $(BIN_DIR)/, $(TARGETS))
 
 dirs :
 	if [ ! -d $(OBJ_DIR) ]; then mkdir $(OBJ_DIR); fi
@@ -35,12 +35,16 @@ $(BIN_DIR)/Queue : $(addprefix $(OBJ_DIR)/, QueueServer.o QueueService.o)
 $(BIN_DIR)/Worker : $(addprefix $(OBJ_DIR)/, WorkerServer.o WorkerService.o QueueService.o)
 	g++ -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -l thrift $^
 
+$(BIN_DIR)/Tuna : $(addprefix $(OBJ_DIR)/, TunaServer.o Tuna.o)
+	g++ -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -l thrift $^
+
 $(OBJ_DIR)/%.o : %.cpp
 	g++ -c -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -I $(INC_DIR) -l thrift $<
 
-thrift : queue.thrift
+thrift : queue.thrift worker.thrift tuna.thrift
 	thrift --gen cpp -o src/queue src/queue/queue.thrift
 	thrift --gen cpp -o src/worker src/worker/worker.thrift
+	thrift --gen cpp -o src/db src/db/tuna.thrift
 
 clean : 
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
