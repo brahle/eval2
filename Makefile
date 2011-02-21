@@ -23,7 +23,7 @@ VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/wor
 
 CXXFLAGS = -O3 -Wall
 
-all : dirs thrift $(addprefix $(BIN_DIR)/, $(TARGETS))
+all : dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
 
 dirs :
 	if [ ! -d $(OBJ_DIR) ]; then mkdir $(OBJ_DIR); fi
