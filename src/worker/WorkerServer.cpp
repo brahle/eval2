@@ -9,7 +9,8 @@
 #include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
 
-#include "WorkerService.h"
+#include "queue/gen-cpp/QueueService.h"
+#include "worker/gen-cpp/WorkerService.h"
 
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -24,26 +25,41 @@ class WorkerServiceHandler : virtual public WorkerServiceIf {
  
  public:
  
-  WorkerServiceHandler() {
-    // Your initialization goes here
-  }
+  WorkerServiceHandler() {}
 
   bool ping() {
     // TODO implement
   }
 
-  void giveTask(const int32_t taskId) {
-    // TODO implement
+  void giveTask(const int taskId) {
+    // TODO implement work
+    sleep(5);
+    
+    
   }
 
 };
 
 } // namespace
 
-int main(int argc, char **argv) {
-  // TODO read port from a conf file
-  int port = 9090;
+void registerSelf(int port) {
+  shared_ptr<TTransport> socket(new TSocket("localhost", 9090));
+  shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+  shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+  WorkerServiceClient client(protocol);
 
+  try {
+    transport->open();
+    
+    
+    
+    transport->close();
+  } catch (TException &tx) {
+    printf("ERROR: %s\n", tx.what());
+  }
+}
+
+void startServer(int port) {
   shared_ptr<eval::WorkerServiceHandler> handler(
      new eval::WorkerServiceHandler());
 
@@ -66,7 +82,22 @@ int main(int argc, char **argv) {
 		       protocolFactory
 		       );
   
-  server.serve();
+  server.serve();  
+}
+
+int main(int argc, char **argv) {
+  if(argc != 2) {
+    printf("Program takes 1 argument: port");
+    return 1;
+  }
+
+  // TODO read configuration: queue's ip+port, worker's ip+port or id
+
+  int port = atoi(argv[1]);
+
+  registerSelf(port);
+
+  startServer(port);
 
   return 0;
 }
