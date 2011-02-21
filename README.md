@@ -60,4 +60,3 @@ Sorted in alphabetical order:
 * Filip Pavetic
 * Ivan Pilat
 * Bruno Rahle
-
