@@ -44,3 +44,5 @@ sudo make install
 cd ..
 
 sudo rm -rf thrift*
+
+sudo mv /usr/local/lib/libthrift* /lib

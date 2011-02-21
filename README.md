@@ -91,6 +91,7 @@ Sorted in alphabetical order:
 
 * Anton Grbin
 * Matija Osrecki
+* Filip Pavetic
 * Ivan Pilat
 * Bruno Rahle - [email](mailto:brahle+eval2@gmail.com)
 
