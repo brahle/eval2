@@ -1,0 +1,8 @@
+#ignore bin and object files
+
+bin/*
+obj/*
+
+#ignore thrift compiled sources
+
+src/*/gen-*/*
