@@ -8,6 +8,7 @@
 #define EVAL_QUEUE_SYNCED_QUEUE_HPP_
 
 #include <queue>
+
 #include <thrift/concurrency/Mutex.h>
 
 using apache::thrift::concurrency::Guard;
@@ -22,27 +23,26 @@ namespace eval {
    *   push, pop, size and empty.
    */
 template <class T> class SyncedQueue {
-
  public:
-  SyncedQueue() {} 
+  SyncedQueue() {}
 
-  void push(T &member) {
+  void push(const T &member) {
     Guard g(this->lock_);
     queue_.push(member);
   }
 
   T pop() throw(int) {
     Guard g(this->lock_);
-  
-    if(queue_.size() == 0) 
+
+    if (queue_.size() == 0)
       throw 1;
-  
+
     T ret = queue_.front();
     queue_.pop();
     return ret;
   }
 
-  size_t size() throw(int) {
+  size_t size() {
     Guard g(this->lock_);
     return queue_.size();
   }
@@ -54,10 +54,10 @@ template <class T> class SyncedQueue {
 
  private:
   queue<T> queue_;
-  
+
   Mutex lock_;
 };
 
-} // namespace
+}  // namespace
 
-#endif // EVAL_QUEUE_SYNCED_QUEUE_HPP_
+#endif  // EVAL_QUEUE_SYNCED_QUEUE_HPP_

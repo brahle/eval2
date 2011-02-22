@@ -6,6 +6,7 @@
 
 #include <queue>
 #include <string>
+#include <map>
 
 #include <protocol/TBinaryProtocol.h>
 #include <server/TThreadedServer.h>
@@ -18,16 +19,12 @@
 #include "queue/SyncedQueue.hpp"
 #include "queue/Worker.hpp"
 
-using namespace apache::thrift::protocol;
-using namespace apache::thrift::transport;
-using namespace apache::thrift::server;
-
 using apache::thrift::concurrency::Mutex;
 using apache::thrift::concurrency::Guard;
 
 using boost::shared_ptr;
 
-namespace eval { 
+namespace eval {
 
   /**
    * This is the class which does both the queue managment and
@@ -39,9 +36,8 @@ namespace eval {
    *
    */
 class QueueServiceHandler : virtual public QueueServiceIf {
-
  public:
- 
+
   /**
    * Default constructor.
    */
@@ -51,7 +47,6 @@ class QueueServiceHandler : virtual public QueueServiceIf {
    * One of RPC services, used to ping the server.
    */
   bool ping() {
-
     printf("Queue server. Piiinged.\n");
 
     return 1;
@@ -84,15 +79,15 @@ class QueueServiceHandler : virtual public QueueServiceIf {
    * Registers a worker. Return 0 if everything went OK.
    */
   int registerWorker(int workerId, const std::string& ip, int port) {
-    
-    if(workers_.find(workerId) != workers_.end() ) {
+    if (workers_.find(workerId) != workers_.end()) {
       return 1;
     }
-    
+
     {
       Guard g(registerMutex_);
       workers_[workerId] = Worker(ip, port);
-      printf("Worker %d registered. Ip '%s', port %d.\n", workerId, ip.c_str(), port);
+      printf("Worker %d registered. Ip '%s', port %d.\n",
+        workerId, ip.c_str(), port);
     }
 
     workerQueue_.push(workerId);
@@ -109,31 +104,30 @@ class QueueServiceHandler : virtual public QueueServiceIf {
    * TODO such test if a loop is needed.
    */
   void divideTasks() {
-
     int worker;
     int task;
 
     {
-      // need to make sure that only one thread tries to take all 
+      // need to make sure that only one thread tries to take all
       // resources at one moment
       Guard g(divideMutex_);
 
       try {
-	worker = workerQueue_.pop();
+        worker = workerQueue_.pop();
       } catch(int) {
-	return;
+        return;
       }
 
       try {
-	task = taskQueue_.pop();
+        task = taskQueue_.pop();
       } catch(int) {
-	return;
+        return;
       }
     }
 
-    // TODO send task to worker
+    // TODO(prasko): send task to worker
   }
-  
+
   /**
    * Queue of tasks not yet distributed.
    */
@@ -148,7 +142,7 @@ class QueueServiceHandler : virtual public QueueServiceIf {
    * Workers' information.
    */
   std::map<int, Worker> workers_;
-  
+
   /**
    * Mutex used in the procedure for dividing tasks among workers.
    */
@@ -161,44 +155,40 @@ class QueueServiceHandler : virtual public QueueServiceIf {
   Mutex registerMutex_;
 };
 
-} // namespace
+}  // namespace
 
 void startServer(int port) {
   shared_ptr<eval::QueueServiceHandler> handler(
     new eval::QueueServiceHandler());
-  
-  shared_ptr<TProcessor> processor(
+
+  shared_ptr<apache::thrift::TProcessor> processor(
     new QueueServiceProcessor(handler));
 
-  shared_ptr<TServerTransport> serverTransport(
-    new TServerSocket(port));
+  shared_ptr<apache::thrift::server::TServerTransport> serverTransport(
+    new apache::thrift::transport::TServerSocket(port));
 
-  shared_ptr<TTransportFactory> transportFactory(
-    new TBufferedTransportFactory());
+  shared_ptr<apache::thrift::transport::TTransportFactory> transportFactory(
+    new apache::thrift::transport::TBufferedTransportFactory());
 
-  shared_ptr<TProtocolFactory> protocolFactory(
-    new TBinaryProtocolFactory());
+  shared_ptr<apache::thrift::protocol::TProtocolFactory> protocolFactory(
+    new apache::thrift::protocol::TBinaryProtocolFactory());
 
-  TThreadedServer server(
-			 processor, 
-			 serverTransport, 
-			 transportFactory, 
-			 protocolFactory
-			 );
-  
+  apache::thrift::server::TThreadedServer server(
+    processor, serverTransport, transportFactory, protocolFactory);
+
   server.serve();
 }
 
 int main(int argc, char *argv[]) {
   assert(argc == 2);
 
-  // TODO read server configuration
+  // TODO(prasko): read server configuration
 
   int port = atoi(argv[1]);
 
   startServer(port);
-  
-  // TODO add the client side for worker service
+
+  // TODO(prasko): add the client side for worker service
 
   return 0;
 }
