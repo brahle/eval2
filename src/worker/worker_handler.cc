@@ -19,12 +19,20 @@
  *
  */
 
-service Worker {
-	
-  bool ping(), 
+#include "dispatcher/dispatcher_client.h"
+#include "worker/gen-cpp/Worker.h"
+#include "worker/worker_handler.h"
 
-  /**
-   * Sets the given task for computation on the worker.
-   */
-  oneway void giveTask(1:i32 taskId)
+namespace eval {
+
+bool WorkerHandler::ping(){
+  // TODO(prasko): implement
+  return true;
 }
+
+void WorkerHandler::giveTask(const int taskId) {
+  // TODO(prasko): implement work
+  usleep(5);
+}
+
+}  // namespace

@@ -19,12 +19,24 @@
  *
  */
 
-service Worker {
-	
-  bool ping(), 
+#ifndef EVAL_WORKER_WORKER_HANDLER_H_
+#define EVAL_WORKER_WORKER_HANDLER_H_
 
-  /**
-   * Sets the given task for computation on the worker.
-   */
-  oneway void giveTask(1:i32 taskId)
-}
+#include "worker/gen-cpp/Worker.h"
+
+namespace eval {
+
+class WorkerHandler : virtual public WorkerIf {
+ public:
+
+  WorkerHandler() {}
+
+  bool ping();
+  
+  void giveTask(const int taskId);
+};
+
+}  // namespace
+
+
+#endif  // EVAL_WORKER_WORKER_HANDLER_H_
