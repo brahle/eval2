@@ -29,7 +29,7 @@
 
 using boost::shared_ptr;
 
-int startServer(int port) {
+void startServer(int port) {
     shared_ptr<eval::DispatcherHandler> handler(
       new eval::DispatcherHandler());
 

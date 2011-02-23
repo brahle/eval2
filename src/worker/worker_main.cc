@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     - worker's ip+port or id
   */
 
-  int id = atoi(argv[1]);
+  //  int id = atoi(argv[1]);
   int port = atoi(argv[2]);
 
   //  registerSelf(id, port);

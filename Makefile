@@ -8,9 +8,9 @@ SHELL = /bin/bash
 
 # target programs (components)
 
-TARGETS = Queue Worker Tuna
-QUEUE_OBJS = QueueServer.o QueueService.o
-WORKER_OBJS = WorkerServer.o WorkerService.o
+TARGETS = dispatcher worker tuna
+DISPATCHER_OBJS = dispatcher_main.o basic_queue_dispatcher.o Dispatcher.o
+WORKER_OBJS = worker_main.o worker_handler.o Worker.o Dispatcher.o
 TUNA_OBJS = TunaServer.o Tuna.o
 
 # folders and paths
@@ -22,7 +22,7 @@ INC_DIRS = src include $(THRIFT_DIR)
 
 # folders to look for souce code
 
-VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp: \
+VPATH = src:src/db:src/db/gen-cpp:src/dispatcher:src/dispatcher/gen-cpp: \
 	src/worker:src/worker/gen-cpp
 
 # compiler flags
@@ -41,13 +41,13 @@ dirs :
 
 # link object files into target binaries
 
-$(BIN_DIR)/Queue : $(addprefix $(OBJ_DIR)/, $(QUEUE_OBJS))
+$(BIN_DIR)/dispatcher : $(addprefix $(OBJ_DIR)/, $(DISPATCHER_OBJS))
 	g++ -o $@ $(CXXFLAGS) -l thrift $^
 
-$(BIN_DIR)/Worker : $(addprefix $(OBJ_DIR)/, $(WORKER_OBJS) QueueService.o)
+$(BIN_DIR)/worker : $(addprefix $(OBJ_DIR)/, $(WORKER_OBJS))
 	g++ -o $@ $(CXXFLAGS) -l thrift $^
 
-$(BIN_DIR)/Tuna : $(addprefix $(OBJ_DIR)/, $(TUNA_OBJS))
+$(BIN_DIR)/tuna : $(addprefix $(OBJ_DIR)/, $(TUNA_OBJS))
 	g++ -o $@ $(CXXFLAGS) -l thrift $^
 
 # compile C++ files into object files
@@ -55,10 +55,13 @@ $(BIN_DIR)/Tuna : $(addprefix $(OBJ_DIR)/, $(TUNA_OBJS))
 $(OBJ_DIR)/%.o : %.cpp
 	g++ -c -o $@ $(CXXFLAGS) $(addprefix -I , $(INC_DIRS)) $<
 
+$(OBJ_DIR)/%.o : %.cc
+	g++ -c -o $@ $(CXXFLAGS) $(addprefix -I , $(INC_DIRS)) $<
+
 # generate thrift code
 
-thrift : queue.thrift worker.thrift tuna.thrift
-	thrift --gen cpp -o src/queue src/queue/queue.thrift
+thrift : dispatcher.thrift worker.thrift tuna.thrift
+	thrift --gen cpp -o src/dispatcher src/dispatcher/dispatcher.thrift
 	thrift --gen cpp -o src/worker src/worker/worker.thrift
 	thrift --gen cpp -o src/db src/db/tuna.thrift
 
@@ -66,4 +69,4 @@ thrift : queue.thrift worker.thrift tuna.thrift
 
 clean : 
 	rm -rf $(OBJ_DIR) $(addprefix $(BIN_DIR)/, $(TARGETS))
-	rm -rf src/{queue,worker,db}/gen-cpp
+	rm -rf src/{dispatcher,worker,db}/gen-cpp
