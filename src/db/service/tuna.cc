@@ -20,20 +20,25 @@ class Tuna {
     connPool = new ConnectionPool;
   }
 
-  bool reserve(object_id id) {
+  void reserve(object_id id) {
     return reserve(vector<object_id> (1,id));
   }
   
-  unsigned int reserve(vector<object_id> ids) {
+  void reserve(vector<object_id> ids) {
     ids = bigMap->reserve(ids);
-
+        
     // ids = memcache_.reserve(ids);
-
-    connPool->reserve(ids);
+    connPool_->getFreeQueueLink()->reserve(ids);
 
     return true;
   }
 
+
+  /* blocking function */
+  vector<object_id> simpleQuery(string qname, vector<string> data) {
+    return connPool_->getFreeWorkLink()->simpleQuery(qname, data);
+  }
+  
 } T;
 
 }}

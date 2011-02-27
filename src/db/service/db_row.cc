@@ -19,7 +19,8 @@ void DbRow::flag(int flag) {
 }
 
 void DbRow::callBack(shared_ptr<QueueLink> ln, query_id qid) {
-  ln_ = ln; qid_ = qid;
+  ln_ = ln;
+  qid_ = qid;
 }
 
 void DbRow::resolvePending() {

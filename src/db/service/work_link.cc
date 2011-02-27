@@ -17,7 +17,7 @@ WorkLink::WorkLink(string dsn) {
   dsn_ = dsn;
 }
 
-vector<object_id> WorkLink::execSimpleQuery(string qname,
+vector<object_id> WorkLink::simpleQuery(string qname,
   vector<string> data) {
 
   return vector<object_id>(0);

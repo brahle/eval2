@@ -61,6 +61,7 @@ namespace eval { namespace tuna {
   void make_log(string log, object_id id) {
     cerr << "object/" << id << ": " << log << endl;
   }
+  
 }}
 
 namespace eval { namespace tuna {

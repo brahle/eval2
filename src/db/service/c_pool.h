@@ -20,15 +20,13 @@ class ConnectionPool {
 
   shared_ptr<QueueLink> getFreeQueueLink();
 
-  void reserve(vector<object_id> ids);
-  
  private:
 
   void registerLinks(unsigned int size);
 
   vector<shared_ptr<QueueLink> > queuePool_;
 
-  //vector<shared_ptr<WorkLink> > workPool_;
+  vector<shared_ptr<WorkLink> > workPool_;
 
   Mutex lock_;
 

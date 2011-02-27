@@ -31,8 +31,13 @@ query_id QueueLink::push(vector<object_id> ids) {
   with same mod with MAX_TABLES.
   this could be done with map also, which is better?
  */
-void QueueLink::sendMultiGet(vector<object_id> ids) {
+void QueueLink::reserve(vector<object_id> ids) {
+  
   vector<object_id> by_tables[MAX_TABLES];
+  
+  /*
+    dispatcher by tables, connectionPool is locked
+   */
   for (unsigned int i = 0; i < ids.size(); ++i) {
     by_tables[ ids[i] % MAX_TABLES ].push_back(ids[i]);
   } 

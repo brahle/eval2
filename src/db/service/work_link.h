@@ -19,7 +19,7 @@ class WorkLink : public Link_base {
 
   WorkLink(string dsn);
 
-  vector<object_id> execSimpleQuery(string qname, vector<string> data);
+  vector<object_id> simpleQuery(string qname, vector<string> data);
 
  private:
 

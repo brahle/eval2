@@ -17,13 +17,7 @@ class QueueLink : public Link_base {
 
   query_id push(vector<object_id> ids);
 
-  
-  /*
-    divide ids into groups where every group has ids
-    with same mod with MAX_TABLES.
-    this could be done with map also, which is better?
-   */
-  void sendMultiGet(vector<object_id> ids);
+  void reserve(vector<object_id> ids);
 
   void resolveResult(result rec);
 

@@ -39,16 +39,17 @@ vector<object_id> DbAssoc::reserve(vector<object_id> ids) {
 void DbAssoc::reserveSent(vector<object_id> ids, 
   shared_ptr<QueueLink> ln, query_id qid) {
 
-  Guard g(lock_);
+  Guard g(this->lock_);
+  // sad je zakljucan i bigmap i connection pool
   for (unsigned int i = 0; i < ids.size(); ++i) {
-    assert( assoc_.count(ids[i]) );
+    assert( this->assoc_.count(ids[i]) );
 
     shared_ptr<DbRow> ptr = assoc_[ids[i]];
 
     make_log("rezervacija: submited!", ids[i]);
     ptr->flag(TUNA_RESERVED);
     ptr->callBack(ln, qid);
-  } 
+  }
 } 
 
 

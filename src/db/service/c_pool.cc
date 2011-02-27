@@ -24,7 +24,8 @@ ConnectionPool::ConnectionPool() {
   this is maybe for private..
  */
 shared_ptr<QueueLink> ConnectionPool::getFreeQueueLink() {
-
+  Guard g(lock_);
+  
   unsigned int minQueueSize = 0x3f3f3f3f;
 
   shared_ptr<QueueLink> freeConnection;
@@ -45,21 +46,22 @@ shared_ptr<QueueLink> ConnectionPool::getFreeQueueLink() {
   return freeConnection;
 }
 
-/*
-  send request to reseve ids
- */
-void ConnectionPool::reserve(vector<object_id> ids) {
+shared_ptr<WorkLink> ConnectionPool::getFreeWorkLink() {
   Guard g(lock_);
-  getFreeQueueLink()->sendMultiGet(ids);
-} 
-
+  
+  return workPool_[0];
+}
 
 void ConnectionPool::registerLinks(unsigned int size) {
   Guard g(lock_);
+  
   size = 1;
   for (unsigned int i = 0; i < size; ++i) {
     queuePool_.push_back(shared_ptr<QueueLink>(  
       new QueueLink));
+    
+    workPool_.push_back(shared_ptr<WorkLink>(  
+      new WorkLink));
   }
 }
 
