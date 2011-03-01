@@ -8,7 +8,10 @@ SHELL = /bin/bash
 
 # target programs (components)
 
-TARGETS = tuna
+TARGETS = c_pool work_link queue_link link_base db_row db_assoc tuna
+CC = c_pool.cc work_link.cc queue_link.cc link_base.cc db_row.cc db_assoc.cc tuna.cc
+
+CC1 = main.cc
 
 # folders and paths
 
@@ -23,17 +26,5 @@ VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/wor
 
 CXXFLAGS = -O3 -Wall
 
-all : dirs $(addprefix $(BIN_DIR)/, $(TARGETS))
-
-dirs :
-	if [ ! -d $(OBJ_DIR) ]; then mkdir $(OBJ_DIR); fi
-	if [ ! -d $(BIN_DIR) ]; then mkdir $(BIN_DIR); fi
-
-$(BIN_DIR)/tuna : $(addprefix $(OBJ_DIR)/, tuna.o)
-	g++ -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -l thrift -lpq -lpqxx $^
-
-$(OBJ_DIR)/%.o : %.cc %.h
-	g++ -c -o $@ $(CXXFLAGS) -I $(THRIFT_DIR) -I $(INC_DIR) -l thrift $<
-
-clean : 
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+all :
+	g++ -obin/tuna $(CC1) $(CXXFLAGS) -I $(INC_DIR) -I $(THRIFT_DIR) -lthrift -lpq -lpqxx $^

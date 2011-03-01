@@ -4,8 +4,8 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_CONNECTION_POLL__HPP_
-#define EVAL_CONNECTION_POLL__HPP_
+#ifndef EVAL_CONNECTION_POLL_H_
+#define EVAL_CONNECTION_POLL_H_
 
 using std::string;
 using std::vector;
@@ -20,15 +20,15 @@ class ConnectionPool {
 
   shared_ptr<QueueLink> getFreeQueueLink();
 
-  void reserve(vector<object_id> ids);
-  
+  shared_ptr<WorkLink> getFreeWorkLink();
+
  private:
 
   void registerLinks(unsigned int size);
 
   vector<shared_ptr<QueueLink> > queuePool_;
 
-  //vector<shared_ptr<WorkLink> > workPool_;
+  vector<shared_ptr<WorkLink> > workPool_;
 
   Mutex lock_;
 

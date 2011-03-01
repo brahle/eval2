@@ -4,8 +4,8 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_TUNA_LINK_BASE__HPP_
-#define EVAL_TUNA_LINK_BASE__HPP_
+#ifndef EVAL_TUNA_LINK_BASE_H_
+#define EVAL_TUNA_LINK_BASE_H_
 
 using std::cerr;
 using std::string;

@@ -4,21 +4,18 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_TUNA_QUEUE_LINK__HPP_
-#define EVAL_TUNA_QUEUE_LINK__HPP_
-
 namespace eval { namespace tuna {
 
 QueueLink::QueueLink() {
   pipeline_ = shared_ptr<pipeline>(
     new pipeline(*work_));
-  make_log("initing pipeline!");
+  make_log("pipeline initialized!");
 }
 
-query_id QueueLink::push(vector<object_id> ids) {
+query_id QueueLink::push(const vector<object_id> &ids, Tuna *T) {
   string arr = toPgArray(ids); 
   int table_id = ids[0] % MAX_TABLES;
-  string query = "execute tuna_pget_" + tablename[table_id];
+  string query = "execute tuna_pget_" + T->tablename[table_id];
   query = query + "('" + conn_->esc(arr) + "');";
 
   make_log("ubacujem u pipeline: " + query);
@@ -31,29 +28,48 @@ query_id QueueLink::push(vector<object_id> ids) {
   with same mod with MAX_TABLES.
   this could be done with map also, which is better?
  */
-void QueueLink::sendMultiGet(vector<object_id> ids) {
+void QueueLink::reserve(
+  const vector<object_id> &ids, Tuna *T) {
+  
   vector<object_id> by_tables[MAX_TABLES];
+  
+  /*
+    dispatcher by tables, connectionPool is locked
+   */
   for (unsigned int i = 0; i < ids.size(); ++i) {
     by_tables[ ids[i] % MAX_TABLES ].push_back(ids[i]);
   } 
 
   for (int i = 0; i < MAX_TABLES; ++i) {
     if (by_tables[i].size()) {
-      query_id qid = push(by_tables[i]);
+      query_id qid = push(by_tables[i], T);
       queryQueue_.push(qid);
 
-      bigMap->reserveSent
-        (by_tables[i], shared_ptr<QueueLink>(this), qid);
+      T->bigMap_->reserveSent(by_tables[i], this, qid);
     }
+  }
+}
+
+// TODO 
+// resolveResult nije dobar, tuple se dealocira
+
+void QueueLink::resolveResult(result rec, Tuna *T) {
+
+  for (unsigned int i = 0; i < rec.size(); ++i) {
+    Guard g(T->bigMap_->lock_);
+    object_id id = rec[i][0].as<int>();
+
+    make_log("fetch: resolved from pipeline", id);
+    shared_ptr<DbRow> ptr = T->bigMap_->assoc_[id];
+
+    ptr->tup_ = rec[i]; 
+
+    ptr->flag(TUNA_OK);
   }
 
 }
 
-void QueueLink::resolveResult(result rec) {
-  echo(rec); 
-}
-
-void QueueLink::resolveAllPendingQuerys() {
+void QueueLink::resolveAllPendingQuerys(Tuna *T) {
   Guard g(lock_);
 
   while(queryQueue_.size()) {
@@ -61,12 +77,13 @@ void QueueLink::resolveAllPendingQuerys() {
     assert(ret.first == queryQueue_.front()); 
     queryQueue_.pop();
 
-    resolveResult(ret.second);
+    resolveResult(ret.second, T);
   }
+
 
 }
 
-void QueueLink::resolveToQuery(query_id qid) {
+void QueueLink::resolveToQuery(query_id qid, Tuna *T) {
   Guard g(lock_);
 
   while(queryQueue_.size()) {
@@ -74,9 +91,10 @@ void QueueLink::resolveToQuery(query_id qid) {
     assert(ret.first == queryQueue_.front()); 
     queryQueue_.pop();
     
-    resolveResult(ret.second);
+    resolveResult(ret.second, T);
     if (ret.first == qid) break;
   }
+
 }
 
 unsigned int QueueLink::curentQueueSize() {
@@ -88,4 +106,3 @@ unsigned int QueueLink::curentQueueSize() {
 }} // eval::tuna 
 
 
-#endif

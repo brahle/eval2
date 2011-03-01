@@ -4,8 +4,8 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_TUNA_QUEUE_LINK__HPP_
-#define EVAL_TUNA_QUEUE_LINK__HPP_
+#ifndef EVAL_TUNA_QUEUE_LINK_H_
+#define EVAL_TUNA_QUEUE_LINK_H_
 
 namespace eval { namespace tuna {
 
@@ -15,21 +15,15 @@ class QueueLink : public Link_base {
 
   QueueLink();
 
-  query_id push(vector<object_id> ids);
+  query_id push(const vector<object_id> &ids, Tuna *T);
 
-  
-  /*
-    divide ids into groups where every group has ids
-    with same mod with MAX_TABLES.
-    this could be done with map also, which is better?
-   */
-  void sendMultiGet(vector<object_id> ids);
+  void reserve(const vector<object_id> &ids, Tuna *T);
 
-  void resolveResult(result rec);
+  void resolveResult(result rec, Tuna *T);
 
-  void resolveAllPendingQuerys();
+  void resolveAllPendingQuerys(Tuna *T);
 
-  void resolveToQuery(query_id qid);
+  void resolveToQuery(query_id qid, Tuna *T);
 
   unsigned int curentQueueSize();
 
