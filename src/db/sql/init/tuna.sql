@@ -1,4 +1,5 @@
-\c deval
+-- THIS FILE MUST BE CONECATED WITH CREATE_DB.SQL 
+-- WHILE SENDING TO PSQL!
 
 --
 -- fetch all visible tables (not from system schema!)

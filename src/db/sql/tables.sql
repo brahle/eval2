@@ -1,22 +1,21 @@
-\c deval
 
-CREATE TABLE solutions (
-    id bigint NOT NULL,
-    task_id bigint NOT NULL,
-    user_id bigint NOT NULL,
-    programming_language_id bigint NOT NULL,
-    source text NOT NULL,
-    time_submited bigint NOT NULL
+CREATE TABLE "tasks" (
+  id integer primary key,
+  title varchar(128) ,
+  text text 
 );
 
-ALTER TABLE public.solutions OWNER TO deval;
-
-
-CREATE TABLE tasks (
-    id bigint NOT NULL,
-    title character varying(128),
-    text text,
-    user_id bigint[]
+CREATE TABLE "users_suf" (
+  id integer primary key,
+  ime varchar(128) ,
+  prezime varchar(128) 
 );
 
-ALTER TABLE public.tasks OWNER TO deval;
+CREATE TABLE "solutions" (
+  id integer primary key,
+  task_id integer references tasks(id),
+  user_id integer references users_suf(id),
+  programing_language_id integer ,
+  source text ,
+  time_submited integer 
+);
