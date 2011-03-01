@@ -86,7 +86,6 @@ $tuna$ language plpgsql;
 create or replace function tuna_refresh() returns boolean as $tuna$
   declare
   begin
-
     perform tuna_create_prep(tb) from tuna_get_tables() as tb;
     insert into system.tables (name)
       (select tb from tuna_get_tables() as tb

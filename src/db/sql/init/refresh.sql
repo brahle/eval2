@@ -1,0 +1,4 @@
+-- THIS FILE MUST BE CONECATED WITH CREATE_DB.SQL 
+-- WHILE SENDING TO PSQL!
+
+select tuna_refresh();
