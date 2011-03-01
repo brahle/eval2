@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+# @matija, imam problemcic kad napisem:
+# 3 : i32 userId, // references "users"(id)
+# dakle ime tablice sa navodnicima, probaj mi to popravit
+# jer je bitno (za tablicu users neizbjezno).. i to je dobra praksa.
+
+
+
+
 # 
 # Copyright 2011 Matija Osrecki
 # 
@@ -45,6 +53,10 @@
 # One other thing is supported in the comment, and it represents what
 # should be appended to the attribute (constraints).
 # For example: 'UNIQUE REFERENCES %some_table%(%some_id%)'. 
+# Also, it is good pratice to write tablenames with double quotes.
+#   -> references "user"(id)
+
+
 # 
 # In conclusion, if the type is string, the first must be it's type, and
 # the other one is optional. If it's not a string, the argument after
@@ -180,7 +192,7 @@ def read_models(data):
 
 
 def table_to_string(model):
-    table = "CREATE TABLE %s (\n" % model.tname
+    table = "CREATE TABLE \"%s\" (\n" % model.tname
     table += ",\n".join([("  " + a.create_db_line()) for a in model.attributes])
     table += "\n);\n"
     return table
