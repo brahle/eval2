@@ -1,3 +1,6 @@
+#ifndef EVAL_TUNA_TUNA_H
+#define EVAl_TUNA_TUNA_H
+
 #include <map>
 #include <queue>
 #include <string>
@@ -31,7 +34,6 @@ using std::vector;
 using boost::shared_ptr;
 
 namespace eval { namespace tuna {
-
   typedef pipeline::query_id query_id; // from pqxx/pipeline.hxx
   typedef int object_id; // object from db (int64_t)
 
@@ -42,45 +44,32 @@ namespace eval { namespace tuna {
   const int TUNA_OK = 3;
   const int TUNA_MODIFIED = 4;
 
-  /*
-    obavezno ovo pokrenut query prije i skuzit koje su
-    select * from system.tables;
-  */
-  string tablename[2] = {"solutions","tasks"};
+  string ime_flag[5] =
+    {"EMPTY","RESERVED","NON_EXISTENT","OK","MODIFIED"};
 
+  class Tuna;
   class DbRow;
   class DbAssoc;
   class QueueLink;
   class WorkLink;
   class ConnectionPool;
-
-  void make_log(string log) {
-    cerr << log << endl;
-  }
-
-  void make_log(string log, object_id id) {
-    cerr << "object/" << id << ": " << log << endl;
-  }
-  
 }}
-
-namespace eval { namespace tuna {
-  DbAssoc *bigMap;
-  ConnectionPool *connPool;
-}}
-
-#include "db/service/utility.h"
 
 #include "db/service/link_base.h"
-
+#include "db/service/utility.h"
 #include "db/service/db_row.h"
 #include "db/service/db_assoc.h"
-
 #include "db/service/queue_link.h"
 #include "db/service/work_link.h"
-
 #include "db/service/c_pool.h"
+#include "db/service/tuna_class.h"
 
+#include "db/service/link_base.cc"
+#include "db/service/db_row.cc"
+#include "db/service/db_assoc.cc"
+#include "db/service/queue_link.cc"
+#include "db/service/work_link.cc"
+#include "db/service/c_pool.cc"
+#include "db/service/tuna_class.cc"
 
-
-
+#endif

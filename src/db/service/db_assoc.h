@@ -4,8 +4,8 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_TUNA_DB_ASSOC__HPP_
-#define EVAL_TUNA_DB_ASSOC__HPP_
+#ifndef EVAL_TUNA_DB_ASSOC_H_
+#define EVAL_TUNA_DB_ASSOC_H_
 
 namespace eval { namespace tuna {
 
@@ -25,14 +25,25 @@ class DbAssoc {
     Checks which ids are already available in assoc_,
     and returns only those who needs to be reserved
    */
-  vector<object_id> reserve(vector<object_id> ids);
+  vector<object_id> reserve(const vector<object_id> &ids);
 
   /*
     when some of the QueueLink successfuly submits a query
     into the pipeline, this function will be invoked.
    */
-  void reserveSent(vector<object_id> ids, 
-    shared_ptr<QueueLink> ln, query_id qid);
+  void reserveSent(const vector<object_id> &ids, QueueLink *ln, query_id qid);
+
+
+  /*
+    when request to fetch obejcts is made, i must check 
+    for each object in assoc_ and see if he is OK or RESERVED
+   */
+  vector<object_id> resolve(const vector<object_id> &ids, Tuna *T);
+
+  shared_ptr<DbRow> row(object_id id);
+
+  friend class DbRow;
+  friend class QueueLink;
 
  private:
 

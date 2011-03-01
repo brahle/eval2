@@ -4,9 +4,6 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_CONNECTION_POLL__HPP_
-#define EVAL_CONNECTION_POLL__HPP_
-
 namespace eval { namespace tuna {
 
 /*
@@ -68,4 +65,3 @@ void ConnectionPool::registerLinks(unsigned int size) {
 
 }} // eval::tuna 
 
-#endif

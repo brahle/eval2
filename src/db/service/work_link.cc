@@ -4,17 +4,13 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_TUNA_WORK_LINK__HPP_
-#define EVAL_TUNA_WORK_LINK__HPP_
-
 using std::string;
 using std::queue;
 using std::vector;
 
 namespace eval { namespace tuna {
 
-WorkLink::WorkLink(string dsn) {
-  dsn_ = dsn;
+WorkLink::WorkLink() {
 }
 
 vector<object_id> WorkLink::simpleQuery(string qname,
@@ -26,5 +22,3 @@ vector<object_id> WorkLink::simpleQuery(string qname,
 
 }} // eval::tuna 
 
-
-#endif

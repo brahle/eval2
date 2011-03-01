@@ -4,8 +4,8 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_TUNA_DB_ROW__HPP_
-#define EVAL_TUNA_DB_ROW__HPP_
+#ifndef EVAL_TUNA_DB_ROW_H_
+#define EVAL_TUNA_DB_ROW_H_
 
 namespace eval { namespace tuna {
 
@@ -17,19 +17,23 @@ class DbRow {
 
   void flag(int flag);
 
-  void callBack(shared_ptr<QueueLink> ln, query_id qid);
+  void callBack(QueueLink *ln, query_id qid);
 
-  void resolvePending();
-
-  result getResult();
+  void resolvePending(Tuna *T);
 
   int id_, flag_;
 
- private:
+  result::tuple tup_;
 
-  result record_;
+  shared_ptr<result::tuple> tuple_;
+  
+  string echo();
+
+ private:
  
-  shared_ptr<QueueLink> ln_; // which link will bring my result?
+  void *object;
+
+  QueueLink *ln_; // which link will bring my result?
   
   query_id qid_; // and with what query_id?
 

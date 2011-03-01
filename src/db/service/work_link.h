@@ -4,8 +4,8 @@
  * TODO copy notice
  */
 
-#ifndef EVAL_TUNA_WORK_LINK__HPP_
-#define EVAL_TUNA_WORK_LINK__HPP_
+#ifndef EVAL_TUNA_WORK_LINK_H_
+#define EVAL_TUNA_WORK_LINK_H_
 
 using std::string;
 using std::queue;
@@ -17,7 +17,7 @@ class WorkLink : public Link_base {
 
  public:
 
-  WorkLink(string dsn);
+  WorkLink();
 
   vector<object_id> simpleQuery(string qname, vector<string> data);
 
