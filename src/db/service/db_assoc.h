@@ -43,14 +43,15 @@ class DbAssoc {
   shared_ptr<DbRow> row(object_id id);
 
   friend class DbRow;
+  friend class Tuna;
   friend class QueueLink;
+  friend class WorkLink;
 
  private:
 
   Mutex lock_;
 
   std::map<object_id, shared_ptr<DbRow> > assoc_;
-
 
 };
 

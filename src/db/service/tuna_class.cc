@@ -42,9 +42,22 @@ vector<shared_ptr<DbRow> > Tuna::multiGet(
 
   vector<object_id> fromDb = bigMap_->resolve(ids, this);
  
-  // *(static_pointer_cast<Job, void>(bigMap_->row(id)->object_));
-  
-  return vector<shared_ptr<DbRow> >(0);
+  // tu fali memcache_->resolve(ids, this)
+
+  connPool_->getFreeWorkLink()->resolve(fromDb, this);
+
+  vector<shared_ptr<DbRow> > sol;
+  Guard g(bigMap_->lock_);
+
+  for (unsigned int i = 0; i < ids.size(); ++i) {
+    assert( 
+      (bigMap_->assoc_[ids[i]]->flag_ == TUNA_OK) ||
+      (bigMap_->assoc_[ids[i]]->flag_ == TUNA_NON_EXISTENT)
+    );
+    sol.push_back( bigMap_->assoc_[ids[i]] );
+  }
+
+  return sol;
 }
 
 

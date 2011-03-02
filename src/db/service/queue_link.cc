@@ -34,7 +34,7 @@ void QueueLink::reserve(
   vector<object_id> by_tables[MAX_TABLES];
   
   /*
-    dispatch to tables, connectionPool is locked
+    dispatch to tables
    */
   for (unsigned int i = 0; i < ids.size(); ++i) {
     by_tables[ ids[i] % MAX_TABLES ].push_back(ids[i]);

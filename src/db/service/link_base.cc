@@ -27,6 +27,14 @@ void Link_base::init() {
 }
 
 
+string Link_base::makePGet(const vector<object_id> &ids, Tuna *T) {
+  string arr = toPgArray(ids); 
+  int table_id = ids[0] % MAX_TABLES;
+  string query = "execute tuna_pget_" + T->tablename[table_id];
+  query = query + "('" + conn_->esc(arr) + "');";
+  return query;
+}
+
 }} // eval::tuna 
 
 

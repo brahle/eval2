@@ -1,0 +1,92 @@
+#include <string>
+
+// pqxx/ fali za includat result.hxx i netreba .hxx
+// neznam cemu result.hxx, ovo mi netreba
+// jer ionako parent cpp file includa <pqxx/pqxx>
+// 
+#include <pqxx/result>
+
+// ako zelimo vec sve includeat sto ovaj file trazi
+// onda bi trebalo using boost::shared_ptr :)
+using boost::shared_ptr; // [ADDED]
+
+// posto je u models.thrift namespace eval::model,
+// trebalo bi using taj namespace napisat da mozemo
+// dohvatit te type-ove.
+
+using namespace eval::model;
+
+// dodani su ovi pqxx useov-i (koje ja ionako imam u svom
+// include fileu ukljucene) ali kontam, ako bas zelimo
+// da ovaj kod moze sam za sebe se iskompajlirat
+// onda je ovo potrebno.
+
+using pqxx::result; 
+
+// typedef sam stavio da nemoras svudje dolje mijenjat
+// tuple -> result::tuple
+
+typedef result::tuple tuple;
+
+// sto je model/models.h?
+// pretpostavljam da je to thrift generirao onaj _types.h?
+// za sada cu to izostavit, prije ovog fajla sam includo
+// gen-cpp/models_types.h
+
+// #include <model/models.h>
+
+namespace eval { namespace tuna { 
+
+template<class T>
+shared_ptr<T> convertTo(const tuple &t) throw(int) {
+  throw 1;
+}
+
+template<>
+shared_ptr<Task> convertTo(const tuple &t) throw(int) {
+  shared_ptr<Task> task(new Task());
+
+  // !! task je shred pointer i on nema atribut id
+  // treba ic -> umjesto tocke!!
+
+  task->id = t[0].as<int>();
+  task->type = t[1].as<int>();
+  task->filePath = t[2].as<std::string>();
+
+  return task;
+}
+
+template<>
+shared_ptr<TestCase> convertTo(const tuple &t) throw(int) {
+  shared_ptr<TestCase> test_case(new TestCase());
+
+  test_case->id = t[0].as<int>();
+  test_case->taskId = t[1].as<int>();
+  test_case->filePath = t[2].as<std::string>();
+
+  return test_case;
+}
+
+template<>
+shared_ptr<Submission> convertTo(const tuple &t) throw(int) {
+  shared_ptr<Submission> submission(new Submission());
+
+  submission->id = t[0].as<int>();
+  submission->taskId = t[1].as<int>();
+  submission->codePath = t[2].as<std::string>();
+
+  return submission;
+}
+
+template<>
+shared_ptr<Job> convertTo(const tuple &t) throw(int) {
+  shared_ptr<Job> job(new Job());
+
+  job->id = t[0].as<int>();
+  job->test_case_id = t[1].as<int>();
+  job->finished = t[2].as<bool>();
+
+  return job;
+}
+
+} }  // namespace
