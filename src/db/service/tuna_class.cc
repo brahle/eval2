@@ -9,8 +9,10 @@ namespace eval { namespace tuna {
 
 Tuna::Tuna() {
   /* treba li koristiti shared_ptr??? */
-  tablename[8] = "solutions";
-  tablename[9] = "tasks";
+  tablename[0] = "test_cases";
+  tablename[1] = "submissions";
+  tablename[2] = "tasks";
+  tablename[3] = "jobs";
   
   bigMap_ = shared_ptr<DbAssoc> (new DbAssoc);
   connPool_ = shared_ptr<ConnectionPool> (new ConnectionPool);
@@ -40,11 +42,8 @@ vector<shared_ptr<DbRow> > Tuna::multiGet(
 
   vector<object_id> fromDb = bigMap_->resolve(ids, this);
  
-  cout << "tuna class output" << endl;
-  for (unsigned int i = 0; i < ids.size(); ++i) {
-    cout << ids[i] << ' ' << bigMap_->row(ids[i])->echo() << endl;
-  }
-
+  // *(static_pointer_cast<Job, void>(bigMap_->row(id)->object_));
+  
   return vector<shared_ptr<DbRow> >(0);
 }
 

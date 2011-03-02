@@ -34,7 +34,7 @@ void QueueLink::reserve(
   vector<object_id> by_tables[MAX_TABLES];
   
   /*
-    dispatcher by tables, connectionPool is locked
+    dispatch to tables, connectionPool is locked
    */
   for (unsigned int i = 0; i < ids.size(); ++i) {
     by_tables[ ids[i] % MAX_TABLES ].push_back(ids[i]);
@@ -58,11 +58,12 @@ void QueueLink::resolveResult(result rec, Tuna *T) {
   for (unsigned int i = 0; i < rec.size(); ++i) {
     Guard g(T->bigMap_->lock_);
     object_id id = rec[i][0].as<int>();
+    string tablename = rec[i][ rec[i].size()-1 ].as<string>();
 
     make_log("fetch: resolved from pipeline", id);
     shared_ptr<DbRow> ptr = T->bigMap_->assoc_[id];
 
-    ptr->tup_ = rec[i]; 
+    ptr->object_ = convertGeneric(tablename, rec[i]);
 
     ptr->flag(TUNA_OK);
   }

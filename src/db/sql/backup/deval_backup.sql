@@ -175,24 +175,24 @@ CREATE AGGREGATE array_accum(anyelement) (
 ALTER AGGREGATE public.array_accum(anyelement) OWNER TO deval;
 
 --
--- Name: tuna_seq_solutions; Type: SEQUENCE; Schema: public; Owner: deval
+-- Name: tuna_seq_jobs; Type: SEQUENCE; Schema: public; Owner: deval
 --
 
-CREATE SEQUENCE tuna_seq_solutions
-    START WITH 1
+CREATE SEQUENCE tuna_seq_jobs
+    START WITH 3
     INCREMENT BY 100
     NO MAXVALUE
-    NO MINVALUE
+    MINVALUE 3
     CACHE 1;
 
 
-ALTER TABLE public.tuna_seq_solutions OWNER TO deval;
+ALTER TABLE public.tuna_seq_jobs OWNER TO deval;
 
 --
--- Name: tuna_seq_solutions; Type: SEQUENCE SET; Schema: public; Owner: deval
+-- Name: tuna_seq_jobs; Type: SEQUENCE SET; Schema: public; Owner: deval
 --
 
-SELECT pg_catalog.setval('tuna_seq_solutions', 1, false);
+SELECT pg_catalog.setval('tuna_seq_jobs', 3, false);
 
 
 SET default_tablespace = '';
@@ -200,30 +200,61 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: solutions; Type: TABLE; Schema: public; Owner: deval; Tablespace: 
+-- Name: jobs; Type: TABLE; Schema: public; Owner: deval; Tablespace: 
 --
 
-CREATE TABLE solutions (
-    id integer DEFAULT nextval('tuna_seq_solutions'::regclass) NOT NULL,
-    task_id integer,
-    user_id integer,
-    programing_language_id integer,
-    source text,
-    time_submited integer
+CREATE TABLE jobs (
+    id integer DEFAULT nextval('tuna_seq_jobs'::regclass) NOT NULL,
+    test_case_id integer,
+    finished boolean
 );
 
 
-ALTER TABLE public.solutions OWNER TO deval;
+ALTER TABLE public.jobs OWNER TO deval;
+
+--
+-- Name: tuna_seq_submissions; Type: SEQUENCE; Schema: public; Owner: deval
+--
+
+CREATE SEQUENCE tuna_seq_submissions
+    START WITH 1
+    INCREMENT BY 100
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.tuna_seq_submissions OWNER TO deval;
+
+--
+-- Name: tuna_seq_submissions; Type: SEQUENCE SET; Schema: public; Owner: deval
+--
+
+SELECT pg_catalog.setval('tuna_seq_submissions', 1, false);
+
+
+--
+-- Name: submissions; Type: TABLE; Schema: public; Owner: deval; Tablespace: 
+--
+
+CREATE TABLE submissions (
+    id integer DEFAULT nextval('tuna_seq_submissions'::regclass) NOT NULL,
+    task_id integer,
+    code_path character varying(150)
+);
+
+
+ALTER TABLE public.submissions OWNER TO deval;
 
 --
 -- Name: tuna_seq_tasks; Type: SEQUENCE; Schema: public; Owner: deval
 --
 
 CREATE SEQUENCE tuna_seq_tasks
-    START WITH 0
+    START WITH 2
     INCREMENT BY 100
     NO MAXVALUE
-    MINVALUE 0
+    MINVALUE 2
     CACHE 1;
 
 
@@ -233,7 +264,7 @@ ALTER TABLE public.tuna_seq_tasks OWNER TO deval;
 -- Name: tuna_seq_tasks; Type: SEQUENCE SET; Schema: public; Owner: deval
 --
 
-SELECT pg_catalog.setval('tuna_seq_tasks', 0, false);
+SELECT pg_catalog.setval('tuna_seq_tasks', 2, false);
 
 
 --
@@ -242,46 +273,46 @@ SELECT pg_catalog.setval('tuna_seq_tasks', 0, false);
 
 CREATE TABLE tasks (
     id integer DEFAULT nextval('tuna_seq_tasks'::regclass) NOT NULL,
-    title character varying(128),
-    text text
+    type integer,
+    file_path character varying(150)
 );
 
 
 ALTER TABLE public.tasks OWNER TO deval;
 
 --
--- Name: tuna_seq_users_suf; Type: SEQUENCE; Schema: public; Owner: deval
+-- Name: tuna_seq_test_cases; Type: SEQUENCE; Schema: public; Owner: deval
 --
 
-CREATE SEQUENCE tuna_seq_users_suf
-    START WITH 2
+CREATE SEQUENCE tuna_seq_test_cases
+    START WITH 0
     INCREMENT BY 100
     NO MAXVALUE
-    MINVALUE 2
+    MINVALUE 0
     CACHE 1;
 
 
-ALTER TABLE public.tuna_seq_users_suf OWNER TO deval;
+ALTER TABLE public.tuna_seq_test_cases OWNER TO deval;
 
 --
--- Name: tuna_seq_users_suf; Type: SEQUENCE SET; Schema: public; Owner: deval
+-- Name: tuna_seq_test_cases; Type: SEQUENCE SET; Schema: public; Owner: deval
 --
 
-SELECT pg_catalog.setval('tuna_seq_users_suf', 2, false);
+SELECT pg_catalog.setval('tuna_seq_test_cases', 0, false);
 
 
 --
--- Name: users_suf; Type: TABLE; Schema: public; Owner: deval; Tablespace: 
+-- Name: test_cases; Type: TABLE; Schema: public; Owner: deval; Tablespace: 
 --
 
-CREATE TABLE users_suf (
-    id integer DEFAULT nextval('tuna_seq_users_suf'::regclass) NOT NULL,
-    ime character varying(128),
-    prezime character varying(128)
+CREATE TABLE test_cases (
+    id integer DEFAULT nextval('tuna_seq_test_cases'::regclass) NOT NULL,
+    task_id integer,
+    file_path character varying(100)
 );
 
 
-ALTER TABLE public.users_suf OWNER TO deval;
+ALTER TABLE public.test_cases OWNER TO deval;
 
 SET search_path = system, pg_catalog;
 
@@ -304,7 +335,7 @@ ALTER TABLE system.tuna_mod OWNER TO deval;
 -- Name: tuna_mod; Type: SEQUENCE SET; Schema: system; Owner: deval
 --
 
-SELECT pg_catalog.setval('tuna_mod', 2, true);
+SELECT pg_catalog.setval('tuna_mod', 3, true);
 
 
 --
@@ -322,10 +353,18 @@ ALTER TABLE system.tables OWNER TO deval;
 SET search_path = public, pg_catalog;
 
 --
--- Data for Name: solutions; Type: TABLE DATA; Schema: public; Owner: deval
+-- Data for Name: jobs; Type: TABLE DATA; Schema: public; Owner: deval
 --
 
-COPY solutions (id, task_id, user_id, programing_language_id, source, time_submited) FROM stdin;
+COPY jobs (id, test_case_id, finished) FROM stdin;
+\.
+
+
+--
+-- Data for Name: submissions; Type: TABLE DATA; Schema: public; Owner: deval
+--
+
+COPY submissions (id, task_id, code_path) FROM stdin;
 \.
 
 
@@ -333,15 +372,15 @@ COPY solutions (id, task_id, user_id, programing_language_id, source, time_submi
 -- Data for Name: tasks; Type: TABLE DATA; Schema: public; Owner: deval
 --
 
-COPY tasks (id, title, text) FROM stdin;
+COPY tasks (id, type, file_path) FROM stdin;
 \.
 
 
 --
--- Data for Name: users_suf; Type: TABLE DATA; Schema: public; Owner: deval
+-- Data for Name: test_cases; Type: TABLE DATA; Schema: public; Owner: deval
 --
 
-COPY users_suf (id, ime, prezime) FROM stdin;
+COPY test_cases (id, task_id, file_path) FROM stdin;
 \.
 
 
@@ -352,20 +391,29 @@ SET search_path = system, pg_catalog;
 --
 
 COPY tables (name, mod) FROM stdin;
-tasks	0
-solutions	1
-users_suf	2
+test_cases	0
+submissions	1
+tasks	2
+jobs	3
 \.
 
 
 SET search_path = public, pg_catalog;
 
 --
--- Name: solutions_pkey; Type: CONSTRAINT; Schema: public; Owner: deval; Tablespace: 
+-- Name: jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: deval; Tablespace: 
 --
 
-ALTER TABLE ONLY solutions
-    ADD CONSTRAINT solutions_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY jobs
+    ADD CONSTRAINT jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: deval; Tablespace: 
+--
+
+ALTER TABLE ONLY submissions
+    ADD CONSTRAINT submissions_pkey PRIMARY KEY (id);
 
 
 --
@@ -377,11 +425,11 @@ ALTER TABLE ONLY tasks
 
 
 --
--- Name: users_suf_pkey; Type: CONSTRAINT; Schema: public; Owner: deval; Tablespace: 
+-- Name: test_cases_pkey; Type: CONSTRAINT; Schema: public; Owner: deval; Tablespace: 
 --
 
-ALTER TABLE ONLY users_suf
-    ADD CONSTRAINT users_suf_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY test_cases
+    ADD CONSTRAINT test_cases_pkey PRIMARY KEY (id);
 
 
 SET search_path = system, pg_catalog;
@@ -399,28 +447,36 @@ CREATE TRIGGER tuna_tg_new_table
 SET search_path = public, pg_catalog;
 
 --
--- Name: solutions_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: deval
+-- Name: jobs_test_case_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: deval
 --
 
-ALTER TABLE ONLY solutions
-    ADD CONSTRAINT solutions_task_id_fkey FOREIGN KEY (task_id) REFERENCES tasks(id);
-
-
---
--- Name: solutions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: deval
---
-
-ALTER TABLE ONLY solutions
-    ADD CONSTRAINT solutions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users_suf(id);
+ALTER TABLE ONLY jobs
+    ADD CONSTRAINT jobs_test_case_id_fkey FOREIGN KEY (test_case_id) REFERENCES test_cases(id);
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: postgres
+-- Name: submissions_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: deval
+--
+
+ALTER TABLE ONLY submissions
+    ADD CONSTRAINT submissions_task_id_fkey FOREIGN KEY (task_id) REFERENCES tasks(id);
+
+
+--
+-- Name: test_cases_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: deval
+--
+
+ALTER TABLE ONLY test_cases
+    ADD CONSTRAINT test_cases_task_id_fkey FOREIGN KEY (task_id) REFERENCES tasks(id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: deval
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
+REVOKE ALL ON SCHEMA public FROM deval;
+GRANT ALL ON SCHEMA public TO deval;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 

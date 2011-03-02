@@ -1,21 +1,24 @@
 
 CREATE TABLE "tasks" (
-  id integer primary key,
-  title varchar(128) ,
-  text text 
+  id integer PRIMARY KEY,
+  type integer ,
+  file_path varchar(150) 
 );
 
-CREATE TABLE "users_suf" (
-  id integer primary key,
-  ime varchar(128) ,
-  prezime varchar(128) 
+CREATE TABLE "test_cases" (
+  id integer PRIMARY KEY,
+  task_id integer REFERENCES tasks(id),
+  file_path varchar(100) 
 );
 
-CREATE TABLE "solutions" (
-  id integer primary key,
-  task_id integer references tasks(id),
-  user_id integer references users_suf(id),
-  programing_language_id integer ,
-  source text ,
-  time_submited integer 
+CREATE TABLE "submissions" (
+  id integer PRIMARY KEY,
+  task_id integer REFERENCES tasks(id),
+  code_path varchar(150) 
+);
+
+CREATE TABLE "jobs" (
+  id integer PRIMARY KEY,
+  test_case_id integer REFERENCES test_cases(id),
+  finished boolean 
 );

@@ -11,21 +11,22 @@ int main() {
 
   vector<int> v;
   vector<int> p;
-  v.push_back(8);
-  v.push_back(109);
-  v.push_back(209);
-  v.push_back(208);
-  v.push_back(308);
-  v.push_back(308);
+  v.push_back(2);
+  v.push_back(103);
+  v.push_back(203);
+  v.push_back(200);
+  v.push_back(300);
+  v.push_back(300);
 
-  p.push_back(8);
-  p.push_back(209);
-  p.push_back(208);
-  p.push_back(309);
+  p.push_back(2);
+  p.push_back(1);
+  p.push_back(0);
+  p.push_back(100);
 
   T.reserve(v);
-  T.multiGet( p );
+  T.multiGet(p);
 
+ // 2 je task 
   return 0;
 }
 

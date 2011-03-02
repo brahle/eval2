@@ -25,26 +25,26 @@
 
 namespace cpp eval.model
 
-struct Task { // tasks
- 1: i32 id,
+struct Task {         // tasks
+ 1: i32 id,           // PRIMARY KEY
  2: i32 type,
- 3: string filePath // varchar(150)
+ 3: string filePath   // varchar(150)
 }
 
-struct TestCase { // test_cases
- 1: i32 id,
- 2: i32 taskId, // REFERENCES tasks(id)
- 3: string filePath // varchar(100)
+struct TestCase {     // test_cases
+ 1: i32 id,           // PRIMARY KEY
+ 2: i32 taskId,       // REFERENCES tasks(id)
+ 3: string filePath   // varchar(100)
 }
 
-struct Submission { // submissions
- 1: i32 id,
- 2: i32 taskId, // REFERENCES tasks(id)
- 3: string codePath // varchar(150)
+struct Submission {   // submissions
+ 1: i32 id,           // PRIMARY KEY
+ 2: i32 taskId,       // REFERENCES tasks(id)
+ 3: string codePath   // varchar(150)
 }
 
-struct Job { // jobs
- 1: i32 id,
+struct Job {          // jobs
+ 1: i32 id,           // PRIMARY KEY
  2: i32 test_case_id, // REFERENCES test_cases(id)
  3: bool finished
 }

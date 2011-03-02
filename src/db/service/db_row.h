@@ -23,16 +23,13 @@ class DbRow {
 
   int id_, flag_;
 
-  result::tuple tup_;
-
-  shared_ptr<result::tuple> tuple_;
+  // this is shared_ptr that I will static_pointer_cast 
+  // to required class on returning from getObject<>()
+  shared_ptr<void> object_;
   
-  string echo();
 
  private:
  
-  void *object;
-
   QueueLink *ln_; // which link will bring my result?
   
   query_id qid_; // and with what query_id?

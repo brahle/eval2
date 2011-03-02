@@ -47,11 +47,10 @@ void DbRow::resolvePending(Tuna *T) {
   }
 }
 
+/*
 string DbRow::echo() {
   if (flag_ != TUNA_OK) return "nije ok";
   string sol;
-
-  result::tuple t = *tuple_; 
 
   printf("\n************%d*********\n", t.size());
   return "tu";
@@ -62,6 +61,8 @@ string DbRow::echo() {
   
   return sol;
 }
+
+*/
 
 /*result DbRow::getResult() {
   if (flag_ == TUNA_NON_EXISTENT) {

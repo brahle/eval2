@@ -24,10 +24,13 @@ VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/wor
 CXXFLAGS = -O3 -Wall
 
 types :
-	$(SCRIPTS)thrift-psql.py evaluator.thrift sql/tables.sql service/types.h
+	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql gen-cpp/thrift-psql.h
 
 backup :
 	sudo -u postgres pg_dump -C deval > sql/backup/deval_backup.sql
+
+thrift :
+	thrift --gen cpp ../models/models.thrift
 
 create_db : types backup
 	cat sql/init/create_db.sql > /tmp/temp.sql

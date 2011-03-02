@@ -12,6 +12,8 @@ alter database "deval" owner to "deval";
 
 \c deval
 
+alter schema "public" owner to "deval";
+
 -- this will set current user to deval so i
 -- don't need to write alter %object% owner to "deval'
 -- after every statement;

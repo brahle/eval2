@@ -12,10 +12,14 @@
 #include <transport/TServerSocket.h>
 #include <transport/TBufferTransports.h>
 
+
 #include <pqxx/pqxx>
 
 #define MAX_TABLES 100  
 #define OBJECT_ID_PRINTF "%d"
+
+#include <db/gen-cpp/models_types.h>
+#include <db/gen-cpp/thrift-psql.h>
 
 using namespace pqxx;
 
