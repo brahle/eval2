@@ -7,11 +7,6 @@
 #ifndef EVAL_TUNA_LINK_BASE_H_
 #define EVAL_TUNA_LINK_BASE_H_
 
-using std::cerr;
-using std::string;
-using std::queue;
-using std::vector;
-
 namespace eval { namespace tuna {
 
 class Link_base {

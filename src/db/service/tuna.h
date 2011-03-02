@@ -4,6 +4,8 @@
 #include <map>
 #include <queue>
 #include <string>
+#include <cstdio>
+#include <fstream>
 #include <iostream>
 
 #include <protocol/TBinaryProtocol.h>
@@ -34,6 +36,7 @@ using std::pair;
 using std::queue;
 using std::string;
 using std::vector;
+using std::ifstream;
 
 using boost::shared_ptr;
 
@@ -48,7 +51,9 @@ namespace eval { namespace tuna {
   const int TUNA_OK = 3;
   const int TUNA_MODIFIED = 4;
 
-  string ime_flag[5] =
+  const char *QUERY_FILE = "../sql/querys/eval.sql";
+
+  const string ime_flag[5] =
     {"EMPTY","RESERVED","NON_EXISTENT","OK","MODIFIED"};
 
   class Tuna;
@@ -60,6 +65,7 @@ namespace eval { namespace tuna {
 }}
 
 #include "db/service/link_base.h"
+#include "db/service/query.h"
 #include "db/service/utility.h"
 #include "db/service/db_row.h"
 #include "db/service/db_assoc.h"
@@ -69,6 +75,7 @@ namespace eval { namespace tuna {
 #include "db/service/tuna_class.h"
 
 #include "db/service/link_base.cc"
+#include "db/service/query.cc"
 #include "db/service/db_row.cc"
 #include "db/service/db_assoc.cc"
 #include "db/service/queue_link.cc"

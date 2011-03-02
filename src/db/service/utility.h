@@ -3,6 +3,68 @@
 
 namespace eval { namespace tuna {
 
+string trim(const string &t) {
+  string sol = t;
+
+  while (sol.size() && sol[0] == ' ')
+    sol = sol.substr(1);
+
+  while (sol.size() && sol[sol.size()-1] == ' ')
+    sol = sol.substr(0, sol.size()-1);
+
+  return sol;
+}
+
+string join(const string &delimiter, const vector<string> v) {
+  string sol = v[0];
+  for (unsigned int i = 1; i < v.size(); ++i) {
+    sol = sol + delimiter + v[i]; 
+  }
+  return sol;
+}
+
+vector<string> split(const string &delimiter, const string &t) {
+  vector<string> sol;
+  string curr;
+
+  for (unsigned int i = 0; i < t.size(); ++i) {
+    if (i < t.size() - delimiter.size() + 1
+        && t.substr(i, delimiter.size()) == delimiter) {
+      curr = trim(curr);
+      if (curr.size()) {
+        sol.push_back(curr);
+      }
+      curr = "";
+      i += delimiter.size() - 1;
+    } else {
+      curr.push_back(t[i]);
+    }
+  }
+  curr = trim(curr);
+  if (curr.size()) {
+    sol.push_back(curr);
+  }
+  return sol;
+}
+
+vector<string> split(const string &delimiter, const string &t,bool e) {
+  vector<string> sol;
+  string curr;
+
+  for (unsigned int i = 0; i < t.size(); ++i) {
+    if (i < t.size() - delimiter.size() + 1
+        && t.substr(i, delimiter.size()) == delimiter) {
+      sol.push_back(curr);
+      curr = "";
+      i += delimiter.size() - 1;
+    } else {
+      curr.push_back(t[i]);
+    }
+  }
+  sol.push_back(curr);
+  return sol;
+}
+
 void make_log(string log) {
   cerr << log << endl;
 }

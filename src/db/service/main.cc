@@ -11,6 +11,11 @@ int main() {
 
   vector<int> v;
   vector<int> p;
+  p.push_back(2);
+  p.push_back(1);
+  p.push_back(0);
+  p.push_back(100);
+
   v.push_back(2);
   v.push_back(103);
   v.push_back(203);
@@ -18,10 +23,6 @@ int main() {
   v.push_back(300);
   v.push_back(300);
 
-  p.push_back(2);
-  p.push_back(1);
-  p.push_back(0);
-  p.push_back(100);
 
   T.reserve(v);
   T.multiGet(p);

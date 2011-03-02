@@ -6,7 +6,6 @@
 
 namespace eval { namespace tuna {
 
-
 Tuna::Tuna() {
   /* treba li koristiti shared_ptr??? */
   tablename[0] = "test_cases";
@@ -16,6 +15,39 @@ Tuna::Tuna() {
   
   bigMap_ = shared_ptr<DbAssoc> (new DbAssoc);
   connPool_ = shared_ptr<ConnectionPool> (new ConnectionPool);
+
+  cerr << loadQuerys() << " querys loaded.\n";
+}
+
+int Tuna::loadQuerys() {
+  ifstream inSql(QUERY_FILE); 
+  vector<string> oneQuery;
+  string line;
+  int sol = 0;
+
+  while (getline(inSql, line)) {
+    string::size_type loc = line.find("--", 0);
+    if (loc != string::npos) {
+      line = line.substr(0, loc);
+    }
+    line = trim(line);
+    if (!line.size()) continue;
+    if (line[0] == ':') {
+      if (oneQuery.size()) {
+        Query tmp(oneQuery);
+        querys_[tmp.qname_] = tmp;
+        sol++;
+      }
+      oneQuery.clear();
+    }
+    oneQuery.push_back(line);
+  }
+  if (oneQuery.size()) {
+    Query tmp(oneQuery);
+    querys_[tmp.qname_] = tmp;
+    sol++;
+  }
+  return sol;
 }
 
 void Tuna::reserve(const object_id &id) {
@@ -23,13 +55,11 @@ void Tuna::reserve(const object_id &id) {
 }
 
 void Tuna::reserve(vector<object_id> ids) {
-
   ids = bigMap_->reserve(ids);
       
 //  ids = memcache_.reserve(ids);
 
   connPool_->getFreeQueueLink()->reserve(ids, this);
-
 }
 
 /* blocking function */
@@ -37,6 +67,7 @@ vector<object_id> Tuna::simpleQuery(string qname,vector<string> data) {
   return connPool_->getFreeWorkLink()->simpleQuery(qname, data);
 }
 
+/* blocking function */
 vector<shared_ptr<DbRow> > Tuna::multiGet(
   const vector<object_id> &ids) {
 

@@ -40,6 +40,8 @@ void QueueLink::reserve(
     by_tables[ ids[i] % MAX_TABLES ].push_back(ids[i]);
   } 
 
+  Guard g(lock_);
+
   for (int i = 0; i < MAX_TABLES; ++i) {
     if (by_tables[i].size()) {
       query_id qid = push(by_tables[i], T);

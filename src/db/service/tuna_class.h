@@ -14,6 +14,8 @@ class Tuna {
   
   Tuna();
 
+  int loadQuerys();
+
   void reserve(const object_id &id);
 
   /*
@@ -32,6 +34,8 @@ class Tuna {
   shared_ptr<DbAssoc> bigMap_;
 
   shared_ptr<ConnectionPool> connPool_;
+
+  map <string, Query> querys_;
 
 };
 
