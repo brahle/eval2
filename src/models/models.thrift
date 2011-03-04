@@ -48,3 +48,4 @@ struct Job {          // jobs
  2: i32 test_case_id, // REFERENCES test_cases(id)
  3: bool finished
 }
+

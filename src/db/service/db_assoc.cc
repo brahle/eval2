@@ -6,13 +6,20 @@
 
 namespace eval { namespace tuna {
 
+/*
+  check if object with given id exists in map, if not
+  create him with flag EMPTY
+
+  returns true if object don't exists
+ */
 bool DbAssoc::touch(object_id id) {
   // must be locked here.
   if (!assoc_.count(id)) {
     assoc_[id] = shared_ptr<DbRow>(new DbRow(id));
     return true;
+  } else {
+    return (assoc_[id]->flag_ == TUNA_EMPTY);
   }
-  return false;
 }
 
 vector<object_id> DbAssoc::reserve(const vector<object_id> &ids) {
@@ -36,10 +43,12 @@ void DbAssoc::reserveSent(const vector<object_id> &ids,
   Guard g(lock_);
   // sad je zakljucan i bigmap i connection pool
   for (unsigned int i = 0; i < ids.size(); ++i) {
-    assert( this->assoc_.count(ids[i]) );
+    if (!this->assoc_.count(ids[i])) {
+      make_log("OBJECT MODIFIED!");
+      continue;
+    }
 
-    shared_ptr<DbRow> ptr = assoc_[ids[i]];
-
+    shared_ptr<DbRow> ptr = get(ids[i]);
     ptr->flag(TUNA_RESERVED);
     ptr->callBack(ln, qid);
   }
@@ -52,28 +61,74 @@ vector<object_id> DbAssoc::resolve(
 
   for (unsigned int i = 0; i < ids.size(); ++i) {
     bool touched; 
+    int currentFlag, currentQid;
+    object_id id = ids[i];
+    QueueLink *currentLn;
+    shared_ptr<DbRow> ptr;
+
     {
       Guard g(lock_);
-      touched = touch(ids[i]); 
+      touched = touch(id); 
+      ptr = assoc_[id];
+      currentFlag = ptr->flag_;
+      currentLn = ptr->ln_;
+      currentQid = ptr->qid_;
+      // trenutak A
     }
+
     if (touched) {
-      sol.push_back( ids[i] );
+
+      sol.push_back( id );
       make_log("fetch: objekt nije u mapi [NOT RESERVED]!");
+
     } else {
-      assoc_[ids[i]]->resolvePending(T);
+      /*
+        ako je u trenutku A objekt rezerviran ja mogu krenut
+        u resolvanje pending query-a. dok to radim, moguce je
+        da netko invalidira objekt ili napravi nesto s njim,
+        no onda ce se to skuzit kad probam upisat rezultat
+        u objekt. ako u resolvanju ne uspijem naic na tocno ovaj
+        objekt, oznacujem ga sa NON_EXISTENT.
+       */
+      if (currentFlag == TUNA_RESERVED) {
+        if (!currentLn->resolveToQuery(currentQid, id, T)) {
+          Guard g(lock_);
+          ptr->flag(TUNA_NON_EXISTENT); 
+        }
+      }
     }
   }
 
   return sol;
 }
 
-shared_ptr<DbRow> DbAssoc::row(object_id id) {
-  Guard g(lock_);
+shared_ptr<DbRow> DbAssoc::get(object_id id) {
   touch(id);
   return assoc_[id]; 
 }
 
+void DbAssoc::invalidateObject(object_id id) {
+  Guard g(lock_);
+  make_log("object invalidated", id);
+  assoc_.erase(id); 
+}
+
+void DbAssoc::invalidateTable(int tableMod) {
+  Guard g(lock_);
+  vector<object_id> sched;
+  map < object_id, shared_ptr<DbRow> >::iterator i;
+
+  make_log("invalidate table " + stoi(tableMod));
+
+  for (i = assoc_.begin(); i != assoc_.end(); ++i) {
+    if (i->first % TUNA_MAX_TABLES == tableMod) {
+      sched.push_back(i->first);
+    }
+  }
+
+  for (unsigned int i = 0; i < sched.size(); ++i) {
+    assoc_.erase(sched[i]);
+  }
+}
 
 }} // eval::tuna 
-
-

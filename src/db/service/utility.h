@@ -3,6 +3,12 @@
 
 namespace eval { namespace tuna {
 
+string stoi(object_id id) {
+  char tmp[20];
+  sprintf(tmp, OBJECT_ID_PRINTF, id);
+  return string(tmp);
+}
+
 string trim(const string &t) {
   string sol = t;
 

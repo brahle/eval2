@@ -17,7 +17,7 @@
 
 #include <pqxx/pqxx>
 
-#define MAX_TABLES 100  
+#define TUNA_MAX_TABLES 100  
 #define OBJECT_ID_PRINTF "%d"
 
 #include <db/gen-cpp/models_types.h>
@@ -47,9 +47,7 @@ namespace eval { namespace tuna {
   const int TUNA_EMPTY = 0;
   const int TUNA_RESERVED = 1;
   const int TUNA_NON_EXISTENT = 2;
-
   const int TUNA_OK = 3;
-  const int TUNA_MODIFIED = 4;
 
   const char *QUERY_FILE = "../sql/querys/eval.sql";
 

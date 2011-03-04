@@ -35,12 +35,25 @@ class DbAssoc {
 
 
   /*
-    when request to fetch obejcts is made, i must check 
+    when request to fetch objects is made, i must check 
     for each object in assoc_ and see if he is OK or RESERVED
    */
   vector<object_id> resolve(const vector<object_id> &ids, Tuna *T);
 
-  shared_ptr<DbRow> row(object_id id);
+  /*
+    with assumption that bigMap is locked, touch and return dbRow
+   */
+  shared_ptr<DbRow> get(object_id id);
+
+  /*
+    erases object from bigMap
+   */
+  void invalidateObject(object_id id);
+
+  /*
+    erases all objects with given mod from bigMap 
+   */
+  void invalidateTable(int tableMod);
 
   friend class DbRow;
   friend class Tuna;

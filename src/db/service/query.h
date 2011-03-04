@@ -12,23 +12,39 @@ namespace eval { namespace tuna {
 class Query {
 
  public:
-
-  Query();
-
-  Query(const vector<string> &lines);
   
-  string apply(const vector<string> &params, shared_ptr<connection> C);
+  Query(vector<string> lines, Tuna *T);
+  
+  Query(const string &action, const string &tb, Tuna *T);
+
+  Query(const string &action, const string &tb, 
+    vector<string> col, Tuna *T);
+
+  string apply(const vector<string> &params, unsigned int part,
+    shared_ptr<connection> C);
+
+  void invokeInvalidation(const vector<string> &params, Tuna *T);
 
   void debug();
 
   string qname_;
 
-  string sql_;
-  
+  vector<string> sql_;
+
   int argc_;
 
+  /*
+    ponekad izvrsavanje query-a invalidira neke objekte iz cahce-a.
+    pair<tb, redni_br>
+    tb je ime tabele iz koje ce se objekt invalidirat
+    ako je redni_br = -1 onda se invalidiraju svi objekti iz tablice.
+    ako nije, onda se invalidira onaj objekt koji ima id
+    redni_br-og parametra pri pozivu querya.
+   */
   vector< pair<string,int> > invalidate_;
 
+ private:
+  Query();
 
 };
 

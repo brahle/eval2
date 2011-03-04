@@ -13,6 +13,8 @@ class DbRow {
 
  public:
 
+  ~DbRow();
+
   DbRow(object_id id);
 
   void flag(int flag);
@@ -23,10 +25,12 @@ class DbRow {
 
   int id_, flag_;
 
-  // this is shared_ptr that I will static_pointer_cast 
+  // this is shared_ptr I will static_pointer_cast 
   // to required class on returning from getObject<>()
   shared_ptr<void> object_;
-  
+
+  friend class QueueLink;
+  friend class DbAssoc;
 
  private:
  

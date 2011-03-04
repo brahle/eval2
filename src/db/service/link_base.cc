@@ -17,6 +17,7 @@ void Link_base::init() {
   
   {
     work W(*conn_);
+    // ovo tu preparea tuna_pget_%tablename%
     W.exec("select tuna_refresh();");
     W.commit();
   }
@@ -29,7 +30,7 @@ void Link_base::init() {
 
 string Link_base::makePGet(const vector<object_id> &ids, Tuna *T) {
   string arr = toPgArray(ids); 
-  int table_id = ids[0] % MAX_TABLES;
+  int table_id = ids[0] % TUNA_MAX_TABLES;
   string query = "execute tuna_pget_" + T->tablename[table_id];
   query = query + "('" + conn_->esc(arr) + "');";
   return query;

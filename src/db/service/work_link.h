@@ -21,9 +21,13 @@ class WorkLink : public Link_base {
 
   void resolve(const vector<object_id> &ids, Tuna *T);
  
-  // tu si stao!
-  vector<object_id> simpleQuery(string qname,
-    const vector<string> &data);
+  result _execQuery(const string &qname, Tuna *T);
+
+  result _execQuery(const string &qname,
+    const vector<string> &data, Tuna *T);
+
+  result _execQuery(shared_ptr<Query> Q,
+    const vector<string> &data, Tuna *T);
 
  private:
 

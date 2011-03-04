@@ -19,11 +19,15 @@ class QueueLink : public Link_base {
 
   void reserve(const vector<object_id> &ids, Tuna *T);
 
-  void resolveResult(result rec, Tuna *T);
-
   void resolveAllPendingQuerys(Tuna *T);
 
-  void resolveToQuery(query_id qid, Tuna *T);
+  bool resolveResult(query_id qid, result rec, object_id id, Tuna *T);
+
+  /*
+    resolve reservations to some query, and check if
+    object with id %id is resolved!
+   */
+  bool resolveToQuery(query_id qid, object_id id, Tuna *T);
 
   unsigned int curentQueueSize();
 

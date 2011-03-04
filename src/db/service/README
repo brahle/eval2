@@ -1,0 +1,59 @@
+
+  todo:
+  invalidiranje
+  u querys.sql omogucit $1$ parametar
+
+
+
+workflow, rezervacija:
+
+tuna::reserve(ids)
+  ids = DbAssoc::reserve(ids);
+    LOCK 
+      foreach id in ids
+        ako id postoji u bigMap ignoriraj ga.   
+    ~LOCK 
+  QueueLink::reserve(ids, T);
+    foreach table from ids
+      qid = QueueLink::push_to_pipeline( ids from table, T )
+      DbAssoc::reserveSent( ids from table, this, qid )
+        LOCK
+          foreach id from table
+            flag as RESERVED
+            set callback to QueueLink, qid
+        ~LOCK   
+
+
+
+workflow, multiGet:
+
+tuna::multiGet(ids)
+  while ids.size() {
+    fromDb = bigMap::resolve(ids, T)
+      foreach id in ids
+        LOCK
+          trenutniFlag = DbAssoc[id].flag
+          trenutniCallback = DbAssoc[id].callback    
+        ~LOCK
+        if trenutniFlag RESERVED
+          if not QueueLink(callback)::resolveCallback(id) (BLOCK!)
+            LOCK
+              DbAssoc[id].flag(NON_EXISTENT)  
+            ~LOCK
+    WorkLink::resolve(fromDb, T)
+      foreach table from fromDb
+        BLOCKING QUERY: result = execQuery(pget_table);
+        LOCK
+          foreach objekt in result  
+            flag as OK
+          foreach id from table
+            if id nije OK
+              flag as NON EXISTENT
+        ~LOCK
+    LOCK
+      foreach id in ids
+        if DbAssoc[id] OK ili NON_EXISTENT
+          push to return set
+          delete from ids 
+    ~LOCK
+  }
