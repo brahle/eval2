@@ -1,4 +1,6 @@
+GRESKA!
 
+while(input.size())
   todo:
   invalidiranje
   u querys.sql omogucit $1$ parametar
