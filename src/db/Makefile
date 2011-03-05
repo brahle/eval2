@@ -26,6 +26,9 @@ CXXFLAGS = -O3 -Wall
 gen_dirs :
 	mkdir -p gen-cpp
 
+server :
+	g++ -obin/server gen-cpp/Tuna_server.skeleton.cpp -I $(THRIFT_DIR) -lthrift 
+
 types : gen_dirs
 	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql gen-cpp/thrift-psql.h
 

@@ -1,10 +1,9 @@
-typedef i32 object_id
 
 exception TunaExp {
   1: i32 what,
   2: string why,
   3: string query,
-  4: object_id oid
+  4: i64 oid
 }
 
 struct simpleQ {

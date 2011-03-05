@@ -1,7 +1,5 @@
 include "types.thrift"
 
-typedef i32 object_id
-
 service Tuna_base {
 
   bool ping(),
@@ -26,9 +24,9 @@ service Tuna_base {
     2: list<string> data 
   ) throws (1:types.TunaExp e)
 
-  void reserve(1:list<object_id> ids)
+  void reserve(1:list<i32> ids)
 
-  bool destroy(1:object_id id)
+  bool destroy(1:i32 id)
   
   /*
    * these are per-model methods 
