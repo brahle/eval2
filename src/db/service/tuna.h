@@ -49,7 +49,7 @@ namespace eval { namespace tuna {
   const int TUNA_NON_EXISTENT = 2;
   const int TUNA_OK = 3;
 
-  const char *QUERY_FILE = "../sql/querys/eval.sql";
+  const char *QUERY_FILE = "sql/querys/eval.sql";
 
   const string ime_flag[5] =
     {"EMPTY","RESERVED","NON_EXISTENT","OK","MODIFIED"};
