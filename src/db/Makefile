@@ -34,7 +34,7 @@ server :
 	g++ -obin/server gen-cpp/*.cpp -I $(THRIFT_DIR) -lthrift 
 
 types : gen_dirs
-	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql gen-cpp/thrift-psql.h
+	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql gen-cpp/thrift-psql.h thrift/tuna.skeleton.thrift thrift/tuna.thrift
 
 backup :
 	sudo -u postgres pg_dump -C deval > sql/backup/deval_backup.sql
