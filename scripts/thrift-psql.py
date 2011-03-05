@@ -1,12 +1,4 @@
 #!/usr/bin/env python
-# @matija, imam problemcic kad napisem:
-# 3 : i32 userId, // references "users"(id)
-# dakle ime tablice sa navodnicima, probaj mi to popravit
-# jer je bitno (za tablicu users neizbjezno).. i to je dobra praksa.
-
-
-
-
 # 
 # Copyright 2011 Matija Osrecki
 # 
@@ -30,9 +22,13 @@
 #
 # Script reads a thrift file, finds all structures and makes tables out
 # of them. Apart from that, it creates C++ templated functions that
-# convert rows from pqxx library to these structures. Usage:
+# convert rows from pqxx library to these structures. The script also
+# takes a thrift template file by which it generates thrift db services
+# for models.
 #
-# python thrift-psql.py input.thrift tables.sql convert.h
+# Usage:
+# python thrift-psql.py input.thrift tables.sql convert.h template.thrift \
+#        model_services.thrift
 # 
 # Structures must have the following format (with respect to newlines):
 # 
@@ -55,8 +51,6 @@
 # For example: 'UNIQUE REFERENCES %some_table%(%some_id%)'. 
 # Also, it is good pratice to write tablenames with double quotes.
 #   -> references "user"(id)
-
-
 # 
 # In conclusion, if the type is string, the first must be it's type, and
 # the other one is optional. If it's not a string, the argument after
@@ -217,7 +211,7 @@ def create_tcpp_typemap():
 
     return type_map
 
-
+# generates conversion functions
 def generate_conv(out, models):
     tab = 2 * " "
 
@@ -229,11 +223,7 @@ def generate_conv(out, models):
 
     # prepare includes, namespace
 
-    # i removed model/models.h becouse i didn't know what it is
-    # if this was thrift _types.h file, i included that line before
-    # this file in tuna.h
-
-    includes = ['string', 'vector', 'sstream', 'pqxx/result']
+    includes = ['models_types.h', 'string', 'vector', 'sstream', 'pqxx/result']
     usings = ['std::pair', 'std::string', 'std::vector', \
       'std::stringstream', 'pqxx::result', 'boost::shared_ptr', \
       'boost::static_pointer_cast', 'namespace eval::model']
@@ -329,27 +319,42 @@ def generate_conv(out, models):
     out.write("} " * len(namespace) + " // namespace\n")
     
 
-def generate_thrift(out, models):
-    tab = 2 * " "
-    includes = ['../models/models.thrift', 'querys.thrift', \
-      'tuna_base.thrift'];
+# generates thrift service methods for tuna (dbapi)
+def generate_thrift(inp, out, models):
+    lines = []
 
-    out.write("".join(['include "'+i+'"\n' for i in includes]))
-    out.write("\n")
+    exp = 'TunaExp e'
 
-    out.write("namespace cpp eval.tuna\n\n");
-    out.write("typedef i32 object_id\n\n");
+    for m in models:
+        cname = m.cname
+        mcname = 'models.%s' % cname
+        cnames = "".join([w[:1].upper() + w[1:] for w in m.tname.split("_")])
+        oname = convert_name(cname)
+        
+        lines += [
+            '// *** %s ***' % cname,
+            '',
+            '%s get%s(1: i32 id);' % (mcname, cname),
+            'list<%s> get%s(1: list<i32> ids);' % (mcname, cnames),
+            'list<%s> get%sFrom(' % (mcname, cnames),
+            '  1: string qname,',
+            '  2: list<string> data',
+            ') throws(%s);' % (exp),
+            '',
+            'bool update%s(1: %s) throws(1: %s);' % (cname, oname, exp),
+            'i32 insertTask(1: models.Task task) throws (1: %s);' % (exp),
+            ''
 
-    out.write("exception TunaExp {\n");
-    out.write( tab + "1: i32 what,");
-    out.write( tab + "2: string why,");
-    out.write( tab + "3: string query,");
-    out.write( tab + "4: object_id oid");
-    out.write("}");
+            ]
 
-    # templates
-    out.write("service Tuna extends tuna_base.Tuna_base {");
- 
+
+    for line in inp.readlines():
+        if line.find(r'%MODEL_FUNCTIONS%') == -1:
+            out.write(line)
+        else:
+            out.write("  " + "\n  ".join(lines))
+
+
 
 #
 # **************** MAIN ****************
@@ -359,7 +364,9 @@ def main():
     input = open(sys.argv[1], 'r')
     table_out = open(sys.argv[2], 'w')
     convert_out = open(sys.argv[3], 'w')
-    
+    thrift_temp = open(sys.argv[4], 'r')
+    thrift_out = open(sys.argv[5], 'w')
+
     data_list = input.readlines()
     data = ''.join(data_list)
     
@@ -372,14 +379,18 @@ def main():
     for model in models:
         print "Class name '%s', table name '%s':" % (model.cname, model.tname)
         stable = "\n" + table_to_string(model)
-        print stable
+#        print stable
         table_out.write(stable)
         
 
     table_out.close()
 
     generate_conv(convert_out, models)
+    generate_thrift(thrift_temp, thrift_out, models)
+
     convert_out.close()
+    thrift_temp.close()
+    thrift_out.close()
 
 
 if __name__ == '__main__':    
