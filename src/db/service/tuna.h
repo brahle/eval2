@@ -3,10 +3,13 @@
 
 #include <map>
 #include <queue>
+#include <ctime>
 #include <string>
 #include <cstdio>
+#include <utility>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #include <protocol/TBinaryProtocol.h>
 #include <server/TThreadedServer.h>
@@ -33,10 +36,12 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::pair;
+using std::sort;
 using std::queue;
 using std::string;
 using std::vector;
 using std::ifstream;
+using std::make_pair;
 
 using boost::shared_ptr;
 
@@ -48,6 +53,7 @@ namespace eval { namespace tuna {
   const int TUNA_RESERVED = 1;
   const int TUNA_NON_EXISTENT = 2;
   const int TUNA_OK = 3;
+  const int COLLECTOR_PERIOD = 3;
 
   const char *QUERY_FILE = "sql/querys/eval.sql";
 

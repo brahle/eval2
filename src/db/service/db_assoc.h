@@ -9,10 +9,11 @@
 
 namespace eval { namespace tuna {
 
+
 class DbAssoc {
  public:
 
-  DbAssoc() {}
+  DbAssoc();
 
   /*
     Checks if object with id already exists in map,
@@ -61,11 +62,15 @@ class DbAssoc {
   friend class WorkLink;
 
  private:
+  void invokeCollector();
+
+ private:
 
   Mutex lock_;
 
-  std::map<object_id, shared_ptr<DbRow> > assoc_;
-
+  map<object_id, shared_ptr<DbRow> > assoc_;
+  map<object_id, long long> timestamp_;
+  int collectorIter_;
 };
 
 }} // eval::tuna 

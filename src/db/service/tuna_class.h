@@ -81,6 +81,7 @@ class Tuna {
 
   map < string, shared_ptr<Query> > querys_;
 
+
  private:
   
   Mutex lock_;
