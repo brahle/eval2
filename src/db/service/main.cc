@@ -23,9 +23,8 @@ int main() {
   Z.filePath = "kenda";
 
   T.destroy(502);
-  cout << T.update("tasks", serialize(Z)) << endl;
+  cout << T.update("tasks", serialize(Z)) << endl; 
 
- /* 
   vector< pair<string,string> > tmp;
   vector<int> v;
   vector<int> p;
@@ -53,8 +52,6 @@ int main() {
 
   for (int i = 0; i < pp.size(); ++i)
     printf("%d ", pp[i]);
-
-*/
 
   /*
   vector<int> v;

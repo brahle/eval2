@@ -15,7 +15,7 @@ SCRIPTS=../../scripts/
 THRIFT_DIR = /usr/local/include/thrift
 OBJ_DIR = obj
 BIN_DIR = bin
-INC_DIR = ../../../src
+INC_DIR = ../../src
 
 VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/worker/gen-cpp
 
@@ -25,9 +25,13 @@ CXXFLAGS = -O3 -Wall
 
 gen_dirs :
 	mkdir -p gen-cpp
+	mkdir -p bin
+
+service : gen_dirs 
+	g++ -obin/tuna service/main.cc $(CC1) $(CXXFLAGS) -I $(INC_DIR) -I $(THRIFT_DIR) -lthrift -lpq -lpqxx
 
 server :
-	g++ -obin/server gen-cpp/Tuna_server.skeleton.cpp -I $(THRIFT_DIR) -lthrift 
+	g++ -obin/server gen-cpp/*.cpp -I $(THRIFT_DIR) -lthrift 
 
 types : gen_dirs
 	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql gen-cpp/thrift-psql.h
