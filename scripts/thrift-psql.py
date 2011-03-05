@@ -321,38 +321,41 @@ def generate_conv(out, models):
 
 # generates thrift service methods for tuna (dbapi)
 def generate_thrift(inp, out, models):
-    lines = []
-
     exp = 'TunaExp e'
 
+    mcode = []
+
     for m in models:
+	lines = []
+
         cname = m.cname
         mcname = 'models.%s' % cname
         cnames = "".join([w[:1].upper() + w[1:] for w in m.tname.split("_")])
         oname = convert_name(cname)
         
         lines += [
-            '// *** %s ***' % cname,
+            '  // *** %s ***' % cname,
             '',
-            '%s get%s(1: i32 id);' % (mcname, cname),
-            'list<%s> get%s(1: list<i32> ids);' % (mcname, cnames),
+            '%s get%s(1: i32 id),' % (mcname, cname),
+            'list<%s> get%s(1: list<i32> ids),' % (mcname, cnames),
             'list<%s> get%sFrom(' % (mcname, cnames),
             '  1: string qname,',
             '  2: list<string> data',
-            ') throws(%s);' % (exp),
+            ') throws(1: %s),' % (exp),
             '',
-            'bool update%s(1: %s) throws(1: %s);' % (cname, oname, exp),
-            'i32 insertTask(1: models.Task task) throws (1: %s);' % (exp),
-            ''
-
+            'bool update%s(1: %s %s) throws(1: %s),' % (cname, mcname, oname, exp),
+            'i32 insert%s(1: %s %s) throws (1: %s)' % (cname, mcname, oname, exp)
             ]
+
+	mcode.append("\n  	".join(lines))
 
 
     for line in inp.readlines():
         if line.find(r'%MODEL_FUNCTIONS%') == -1:
             out.write(line)
         else:
-            out.write("  " + "\n  ".join(lines))
+            out.write("" + ",\n\n".join(mcode))
+
 
 
 

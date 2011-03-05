@@ -10,3 +10,10 @@
 
 :get_jobs:::
   select * from jobs;
+
+:filip:2:users,task(2),solution(1):
+  select * from govno;
+  delete from users;
+  delete from solution where id = ?;
+  delete from task where id = ?;
+
