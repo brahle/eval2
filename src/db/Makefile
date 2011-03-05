@@ -42,7 +42,7 @@ backup :
 thrift : types
 	thrift --gen cpp -r thrift/tuna.thrift
 
-create_db : types backup
+create_db : types
 	cat sql/init/create_db.sql > /tmp/temp.sql
 	cat sql/init/tuna.sql >> /tmp/temp.sql
 	cat sql/tables.sql >> /tmp/temp.sql
