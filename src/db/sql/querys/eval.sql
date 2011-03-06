@@ -17,3 +17,10 @@
   delete from solution where id = ?;
   delete from task where id = ?;
 
+
+:wrong_double:::
+  select 'anton', 2;
+
+:ok_double:::
+  select 2, 'anton';
+

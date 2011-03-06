@@ -2,7 +2,19 @@
 // tako da u Tuna_server.skeleton.cpp trazis liniju
 // "// Your implementation goes here"
 // i kad je nadjes, onda zamijenis sa ovim kodovima:
-// funkcije idu po redu, s tim nemamo problema
+// funkcije idu po redu, s tim nemamo problema jer ih
+// mi generiramo
+// svaki kod unutar <tri dash-a> je jedna funkcija
+
+INSERT AFTER #include "Tuna.h"
+#include <tuna.h>
+END
+
+INSERT AFTER class TunaHandler
+
+ private:
+  Tuna T_;
+END
 
 ###
     return true;
@@ -26,24 +38,24 @@
     return T_.destroy(id);
 ###
 
-// @matija! sljedece 5 funkcije se ponove
+// sljedece 5 funkcije se ponove
 // onoliko puta koliko ima tablica
 
-###
-    vector<eval::model::%s> sol =
-      T_.multiGet<eval::model::%s>(vector<object_id> (1,id));
+### start foreach models
+    vector<eval::model::%className%> sol =
+      T_.multiGet<eval::model::%className%>(vector<object_id> (1,id));
 
-    _return = sol.size() ? sol.at(0) : eval::model::%s();
-### className
+    _return = sol.size() ? sol.at(0) : eval::model::%className%();
 ###
-    _return = T_.multiGet<eval::model::%s>(ids);
-### className 
 ###
-    _return = T_.getFrom<eval::model::%s>(qname, data);
-### className
+    _return = T_.multiGet<eval::model::%className%>(ids);
+### 
 ###
-    return T_.update("%s", serialize(%s)); 
-### tableName, variableName
+    _return = T_.getFrom<eval::model::%className%>(qname, data);
 ###
-    return T_.insert("%s", serialize(%s)); 
-### tableName, variableName
+###
+    return T_.update("%tableName%", serialize(%varName%)); 
+###
+###
+    return T_.insert("%tableName%", serialize(%varName%)); 
+###
