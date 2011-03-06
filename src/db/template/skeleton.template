@@ -1,0 +1,61 @@
+// zamislio sam generiranje Tuna_server.cpp fajla
+// tako da u Tuna_server.skeleton.cpp trazis liniju
+// "// Your implementation goes here"
+// i kad je nadjes, onda zamijenis sa ovim kodovima:
+// funkcije idu po redu, s tim nemamo problema jer ih
+// mi generiramo
+// svaki kod unutar <tri dash-a> je jedna funkcija
+
+INSERT AFTER #include "Tuna.h"
+#include <tuna.h>
+END
+
+INSERT AFTER class TunaHandler
+
+ private:
+  Tuna T_;
+END
+
+###
+    return true;
+###
+###
+    _return = T_.simpleQuery(qname, data);
+###
+###
+    _return = T_.doubleQuery(qname, data);
+###
+###
+    _return = T_.fullQuery(qname, data);
+###
+###
+    _return = T_.reserveFrom(qname, data);
+###
+###
+    T_.reserve(ids);
+###
+###
+    return T_.destroy(id);
+###
+
+// sljedece 5 funkcije se ponove
+// onoliko puta koliko ima tablica
+
+### start foreach models
+    vector<eval::model::%className%> sol =
+      T_.multiGet<eval::model::%className%>(vector<object_id> (1,id));
+
+    _return = sol.size() ? sol.at(0) : eval::model::%className%();
+###
+###
+    _return = T_.multiGet<eval::model::%className%>(ids);
+### 
+###
+    _return = T_.getFrom<eval::model::%className%>(qname, data);
+###
+###
+    return T_.update("%tableName%", serialize(%varName%)); 
+###
+###
+    return T_.insert("%tableName%", serialize(%varName%)); 
+###

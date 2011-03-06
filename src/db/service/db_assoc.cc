@@ -6,6 +6,26 @@
 
 namespace eval { namespace tuna {
 
+DbAssoc::DbAssoc() {
+}
+
+void DbAssoc::invokeCollector() {
+  collectorIter_ = 0;
+  vector< pair<long long, object_id> > sortedByTime;
+  sortedByTime.reserve(timestamp_.size());
+
+  for (map<object_id, long long>::iterator it = timestamp_.begin();
+       it != timestamp_.end(); ++it) {
+    sortedByTime.push_back(make_pair(it->second, it->first));    
+  }
+
+  sort(sortedByTime.rbegin(), sortedByTime.rend());
+  for (int i = COLLECTOR_PERIOD; i < (int)sortedByTime.size(); ++i) {
+    timestamp_.erase(sortedByTime[i].second);
+    assoc_.erase(sortedByTime[i].second);
+  }
+}
+
 /*
   check if object with given id exists in map, if not
   create him with flag EMPTY
@@ -13,6 +33,12 @@ namespace eval { namespace tuna {
   returns true if object don't exists
  */
 bool DbAssoc::touch(object_id id) {
+  timestamp_[id] = time(0);
+  ++collectorIter_;
+
+  if (collectorIter_ == COLLECTOR_PERIOD){
+    invokeCollector();
+  }
   // must be locked here.
   if (!assoc_.count(id)) {
     assoc_[id] = shared_ptr<DbRow>(new DbRow(id));

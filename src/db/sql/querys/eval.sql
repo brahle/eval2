@@ -2,7 +2,7 @@
 -- query names starting with _ are of internal use
 
 :_get_tables:::
-  select name, mod
+  select mod, name
   from system.tables; 
 
 :get_tasks:::
@@ -16,4 +16,11 @@
   delete from users;
   delete from solution where id = ?;
   delete from task where id = ?;
+
+
+:wrong_double:::
+  select 'anton', 2;
+
+:ok_double:::
+  select 2, 'anton';
 

@@ -16,6 +16,7 @@ Tuna::Tuna() {
   cerr << loadQuerys() << " querys loaded.\n";
   cerr << loadTables() << " tables loaded.\n";
 
+  make_log("initialization complete.");
 }
 
 /*
@@ -30,20 +31,18 @@ void Tuna::waitForLock() {
 }
 
 int Tuna::loadTables() {
+  doubleQ tb = doubleQuery("_get_tables", vector<string>());
+
   Guard g(lock_);
 
-  result rec = 
-    connPool_->getFreeWorkLink()->_execQuery("_get_tables", this);
-  
-  for (unsigned int i = 0; i < rec.size(); ++i) {
-    cerr << "  table " <<
-      rec[i][0].as<string>() << " has mod " << 
-      rec[i][1].as<int>() << ".\n";
+  for (int i = 0; i < tb.size; ++i) {
+    cerr << "  table " << tb.strs[i] <<
+      " has mod " << tb.nums[i] << ".\n";
 
-    tablename[ rec[i][1].as<int>() ] = rec[i][0].as<string>();
+    tablename[ tb.nums[i] ] = tb.strs[i];
   }
 
-  return rec.size();
+  return tb.size;
 }
 
 /*
@@ -80,12 +79,11 @@ int Tuna::loadQuerys() {
   return sol;
 }
 
-vector<object_id> Tuna::simpleQuery(const string &qname,
+simpleQ Tuna::simpleQuery(const string &qname,
   const vector<string> &args) {
 
   waitForLock();
-
-  vector<object_id> sol;
+  simpleQ sol;
 
   result r =
     connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
@@ -93,101 +91,71 @@ vector<object_id> Tuna::simpleQuery(const string &qname,
 
   for (unsigned int i = 0; i < r.size(); ++i) {
     if (!r[i][0].is_null()) {
-      sol.push_back( r[i][0].as<int>() );
+      sol.nums.push_back( r[i][0].as<int>() );
+      ++sol.size;
     }
   }
 
   return sol;  
 }
 
-vector< pair<int, string> > Tuna::doubleQuery(const string &qname,
+doubleQ Tuna::doubleQuery(const string &qname,
   const vector<string> &args) {
 
   waitForLock();
- 
-  vector< pair<int, string> > sol;
+  doubleQ sol; 
 
   result r =
     connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
 
   for (unsigned int i = 0; i < r.size(); ++i) {
     if (!r[i][0].is_null()) {
-      sol.push_back(
-        make_pair(r[i][0].as<int>(), r[i][1].as<string>()) );
+      sol.nums.push_back( r[i][0].as<int>() );
+      sol.strs.push_back( r[i][1].as<string>() );
+      ++sol.size;
     }
   }
 
   return sol;  
 }
 
-pair< vector<string>, vector< vector<string> > > Tuna::fullQuery(
-  const string &qname, const vector<string> &args) {
+fullQ Tuna::fullQuery(const string &qname,
+  const vector<string> &args) {
 
   waitForLock();
- 
-  vector<string> col, tmp;
-  vector< vector<string> > data;
+  fullQ sol;
 
   result r =
     connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
 
   if (!r.size()) {
-    return make_pair(vector<string>(),vector< vector<string> >());
+    return sol;
   }
 
   for (unsigned int i = 0; i < r[0].size(); ++i) {
-    col.push_back( string(r[0][i].name()) );
+    sol.col_name.push_back( string(r[0][i].name()) );
   }
 
   for (unsigned int i = 0; i < r.size(); ++i) {
-    tmp.clear();
+    vector<string> row(r[i].size());
     for (unsigned int j = 0; j < r[i].size(); ++j) {
-      tmp.push_back( r[i][j].as<string>() );
+      row.push_back( r[i][j].as<string>() );
     }
-    data.push_back( tmp );
+    sol.data.push_back( row );
   }
 
-  return make_pair(col, data);
+  return sol;
 }
 
-vector<object_id> Tuna::reserveFrom(const string &qname,
+simpleQ Tuna::reserveFrom(const string &qname,
   const vector<string> &args) {
 
   waitForLock();
 
-  vector<object_id> sol;
+  simpleQ sol = simpleQuery(qname, args);
+  reserve(sol.nums);
 
-  result r =
-    connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
-
-  for (unsigned int i = 0; i < r.size(); ++i) {
-    if (!r[i][0].is_null()) {
-      sol.push_back( r[i][0].as<int>() );
-    }
-  }
-
-  reserve(sol);
-
-  return sol;  
-}
-
-vector<shared_ptr<void> > Tuna::getFrom(const string &qname,
-  const vector<string> &args) {
-
-  waitForLock();
-
-  vector<object_id> sol;
-
-  result r =
-    connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
-
-  for (unsigned int i = 0; i < r.size(); ++i) {
-    if (!r[i][0].is_null()) {
-      sol.push_back( r[i][0].as<int>() );
-    }
-  }
-
-  return multiGet(sol);
+  return sol;
 }
 
 /*
@@ -266,58 +234,6 @@ void Tuna::reserve(vector<object_id> ids) {
 
   connPool_->getFreeQueueLink()->reserve(ids, this);
 }
-
-/*  
-  blocking function
-  send querys to fetch objects and wait for the result.
-*/
-vector<shared_ptr<void> > Tuna::multiGet(
-  const vector<object_id> &ids) {
-
-  waitForLock();
-  vector< shared_ptr<void> > sol;
-  vector<object_id> _input, fromDb, input = ids;
-
-  while (input.size()) {
-    /*
-      check in bigMap which of these ids are already here.
-     */
-    fromDb = bigMap_->resolve(input, this);
-    /*
-      memcache check should go here.
-      --
-      sync request only those we don't have.
-     */
-    connPool_->getFreeWorkLink()->resolve(fromDb, this);
-
-    Guard g(bigMap_->lock_);
-    _input.clear();
-    for (unsigned int i = 0; i < input.size(); ++i) {
-      object_id id = input[i];
-      shared_ptr<DbRow> ptr = bigMap_->get(id);
-      /*
-        if requested object isn't in bigMap at all?
-        there is posibility that some other thread changed
-        one of our objects after we made
-        sure that this object is in our bigMap. if this is
-        so, I will do my while loop one more time with modified
-        objects in my input.
-       */
-      if (ptr->flag_ != TUNA_OK && ptr->flag_ != TUNA_NON_EXISTENT) {
-        _input.push_back(id);
-        make_log("OBJECT MODIFIED!"); 
-        continue;
-      }
-
-      sol.push_back(ptr->object_);
-    }
-    input = _input;
-  }
-
-  // sol.size() == ids.size()
-  return sol;
-}
-
 
 int Tuna::tableMod(const string &tb) {
   for (unsigned int i = 0; i < TUNA_MAX_TABLES; ++i) {

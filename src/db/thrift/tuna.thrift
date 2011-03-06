@@ -54,22 +54,53 @@ service Tuna {
 
   bool destroy(1:i32 id)
 
-//%MODEL_FUNCTIONS%
+  // *** Task ***
+  	
+  	models.Task getTask(1: i32 id),
+  	list<models.Task> getTasks(1: list<i32> ids),
+  	list<models.Task> getTasksFrom(
+  	  1: string qname,
+  	  2: list<string> data
+  	) throws(1: TunaExp e),
+  	
+  	bool updateTask(1: models.Task task) throws(1: TunaExp e),
+  	i32 insertTask(1: models.Task task) throws (1: TunaExp e),
 
-  /*
-   * these are per-model methods 
-   */
+  // *** TestCase ***
+  	
+  	models.TestCase getTestCase(1: i32 id),
+  	list<models.TestCase> getTestCases(1: list<i32> ids),
+  	list<models.TestCase> getTestCasesFrom(
+  	  1: string qname,
+  	  2: list<string> data
+  	) throws(1: TunaExp e),
+  	
+  	bool updateTestCase(1: models.TestCase test_case) throws(1: TunaExp e),
+  	i32 insertTestCase(1: models.TestCase test_case) throws (1: TunaExp e),
 
-  models.Task getTask(1:i32 id);
-  list<models.Task> getTasks(1:list<i32> ids);
-  list<models.Task> getTasksFrom(
-    1: string qname,
-    2: list<string> data 
-  ) throws (1:TunaExp e);
+  // *** Submission ***
+  	
+  	models.Submission getSubmission(1: i32 id),
+  	list<models.Submission> getSubmissions(1: list<i32> ids),
+  	list<models.Submission> getSubmissionsFrom(
+  	  1: string qname,
+  	  2: list<string> data
+  	) throws(1: TunaExp e),
+  	
+  	bool updateSubmission(1: models.Submission submission) throws(1: TunaExp e),
+  	i32 insertSubmission(1: models.Submission submission) throws (1: TunaExp e),
 
-  bool updateTask(1:models.Task task) throws (1:TunaExp e);
-  i32 insertTask(1:models.Task task) throws (1:TunaExp e);
-
+  // *** Job ***
+  	
+  	models.Job getJob(1: i32 id),
+  	list<models.Job> getJobs(1: list<i32> ids),
+  	list<models.Job> getJobsFrom(
+  	  1: string qname,
+  	  2: list<string> data
+  	) throws(1: TunaExp e),
+  	
+  	bool updateJob(1: models.Job job) throws(1: TunaExp e),
+  	i32 insertJob(1: models.Job job) throws (1: TunaExp e)
 }
 
 
