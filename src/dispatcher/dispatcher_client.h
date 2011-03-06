@@ -1,72 +1,67 @@
-/**
- * Copyright 2011 Matija Osrecki
- *
- * This file is part of Evaluator.
- * 
- * Evaluator is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * Evaluator is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public
- * License along with Evaluator. If not, see
- * <http://www.gnu.org/licenses/>.
- *
- */
-
 #ifndef EVAL_DISPATCHER_CLIENT_H_
 #define EVAL_DISPATCHER_CLIENT_H_
 
 #include <string>
-
 #include <protocol/TBinaryProtocol.h>
 #include <transport/TSocket.h>
 #include <transport/TBufferTransports.h>
 #include <transport/TTransportUtils.h>
+#include <boost/shared_ptr.hpp>
 
-#include "dispatcher/gen-cpp/Dispatcher.h"
+#include "gen-cpp/Dispatcher.h"
 
-using boost::shared_ptr;
+namespace eval { 
 
-using apache::thrift::transport::TTransport;
-using apache::thrift::transport::TSocket;
-using apache::thrift::transport::TBufferedTransport;
-using apache::thrift::protocol::TProtocol;
-using apache::thrift::protocol::TBinaryProtocol;
-
-namespace eval {
-
-class DefaultDispatcherClient {
+class DispatcherClient {
  public:
 
-  DefaultDispatcherClient(const std::string &ip, const int port) {
-    shared_ptr<TTransport> socket(new TSocket(ip, port));
-    shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-    shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport_));
-    shared_ptr<DispatcherClient> client(new DispatcherClient(protocol));
-    
-    this->transport_ = transport;
-    this->client_ = client;
+  DispatcherClient(const std::string &ip, const int port) {
+    boost::shared_ptr<apache::thrift::transport::TTransport> socket(
+      new apache::thrift::transport::TSocket(ip, port));
+
+    boost::shared_ptr<apache::thrift::transport::TTransport> transport(
+      new apache::thrift::transport::TBufferedTransport(socket));
+
+    boost::shared_ptr<apache::thrift::protocol::TProtocol> protocol(
+      new apache::thrift::protocol::TBinaryProtocol(transport_));
+
+    boost::shared_ptr< ::DispatcherClient> client(
+      new ::DispatcherClient(protocol));
+
+    client_ = client;
+    transport_ = transport;
+    transport_->open();
   }
 
-  shared_ptr<TTransport> transport() {
-    return transport_;
+  ~DispatcherClient() {
+    try {
+      transport_->close();
+    } catch(const apache::thrift::TException &tx) {
+      // TODO(someone): log this
+    }
   }
 
-  shared_ptr<DispatcherClient> client() {
-    return client_;
+  bool ping() {
+    return client_->ping();
+  }
+
+  void addTask(const int taskId) {
+    client_->addTask(taskId);
+  }
+
+  void freeWorker(const int workerId) {
+    client_->freeWorker(workerId);
+  }
+
+  void registerWorker(std::vector< std::vector< std::string > > & return_, const
+    int workerId, const std::string& ip, const int port) {
+    client_->registerWorker(return_, workerId, ip, port);
   }
 
  private:
-  
-  shared_ptr<TTransport> transport_;
+  boost::shared_ptr< ::DispatcherClient> client_;
+  boost::shared_ptr<apache::thrift::transport::TTransport> transport_;
 
-  shared_ptr<DispatcherClient> client_;
 };
 
 }  // namespace
