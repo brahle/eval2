@@ -1,0 +1,49 @@
+// zamislio sam generiranje Tuna_server.cpp fajla
+// tako da u Tuna_server.skeleton.cpp trazis liniju
+// "// Your implementation goes here"
+// i kad je nadjes, onda zamijenis sa ovim kodovima:
+// funkcije idu po redu, s tim nemamo problema
+
+###
+    return true;
+###
+###
+    _return = T_.simpleQuery(qname, data);
+###
+###
+    _return = T_.doubleQuery(qname, data);
+###
+###
+    _return = T_.fullQuery(qname, data);
+###
+###
+    _return = T_.reserveFrom(qname, data);
+###
+###
+    T_.reserve(ids);
+###
+###
+    return T_.destroy(id);
+###
+
+// @matija! sljedece 5 funkcije se ponove
+// onoliko puta koliko ima tablica
+
+###
+    vector<eval::model::%s> sol =
+      T_.multiGet<eval::model::%s>(vector<object_id> (1,id));
+
+    _return = sol.size() ? sol.at(0) : eval::model::%s();
+### className
+###
+    _return = T_.multiGet<eval::model::%s>(ids);
+### className 
+###
+    _return = T_.getFrom<eval::model::%s>(qname, data);
+### className
+###
+    return T_.update("%s", serialize(%s)); 
+### tableName, variableName
+###
+    return T_.insert("%s", serialize(%s)); 
+### tableName, variableName

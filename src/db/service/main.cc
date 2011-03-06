@@ -69,12 +69,12 @@ void test4() {
   }
 
   T.reserve(v);
-  T.multiGet(p);
+  T.multiGet<Task>(p);
 }
 
 int main() {
   test1();
-  test4();
+  test2();
 
   return 0;
 }

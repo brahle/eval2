@@ -12,10 +12,11 @@ SCRIPTS=../../scripts/
 
 # folders and paths
 
-THRIFT_DIR = /usr/local/include/thrift
 OBJ_DIR = obj
 BIN_DIR = bin
-INC_DIR = ../../src
+
+INC = ../../src gen-cpp /usr/local/include/thrift service
+LIB = thrift pq pqxx 
 
 VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/worker/gen-cpp
 
@@ -23,24 +24,27 @@ VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/wor
 
 CXXFLAGS = -O3 -Wall
 
-gen_dirs :
-	mkdir -p gen-cpp
+test :
+	ls 
+
+gen_dirs : 
 	mkdir -p bin
-
-service : gen_dirs 
-	g++ -obin/tuna service/main.cc $(CC1) $(CXXFLAGS) -I $(INC_DIR) -I $(THRIFT_DIR) -lthrift -lpq -lpqxx
-
-server :
-	g++ -obin/server gen-cpp/*.cpp -I $(THRIFT_DIR) -lthrift 
+	mkdir -p gen-cpp 
 
 types : gen_dirs
-	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql gen-cpp/thrift-psql.h thrift/tuna.skeleton.thrift thrift/tuna.thrift
+	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql gen-cpp/thrift-psql.h template/tuna.thrift thrift/tuna.thrift
 
 backup :
 	sudo -u postgres pg_dump -C deval > sql/backup/deval_backup.sql
 
 thrift : types
 	thrift --gen cpp -r thrift/tuna.thrift
+
+tuna : thrift
+	g++ -obin/tuna service/main.cc $(CXXFLAGS) $(addprefix -I, $(INC)) $(addprefix -l, $(LIB))
+
+server :
+	g++ -obin/server gen-cpp/*.cpp $(CXXFLAGS) $(addprefix -I, $(INC)) $(addprefix -l, $(LIB))
 
 create_db : types
 	cat sql/init/create_db.sql > /tmp/temp.sql

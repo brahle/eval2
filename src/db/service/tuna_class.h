@@ -25,27 +25,19 @@ class Tuna {
    */
   void reserve(vector<object_id> ids);
 
-  vector<object_id> reserveFrom(const string &qname,
-    const vector<string> &args);
-
-  /*
-   * those two functions are specialized for fetching objects
-   */
-  vector<shared_ptr<void> > multiGet(const vector<object_id> &ids);
-
-  vector<shared_ptr<void> > getFrom(const string &qname,
+  simpleQ reserveFrom(const string &qname,
     const vector<string> &args);
 
   /*
    * these are functions for perfoming a query
    */
-  vector<object_id> simpleQuery(const string &qname,
+  simpleQ simpleQuery(const string &qname,
     const vector<string> &args);
 
-  vector< pair<int, string> > doubleQuery(const string &qname,
+  doubleQ doubleQuery(const string &qname,
     const vector<string> &args);
 
-  pair< vector<string>, vector< vector<string> > > fullQuery(
+  fullQ fullQuery(
     const string &qname, const vector<string> &args);
 
   /* fullQuery data structure explain:
@@ -85,6 +77,69 @@ class Tuna {
  private:
   
   Mutex lock_;
+
+ public:
+
+  /*
+   * those two functions are specialized for fetching objects
+   * this code is here because functions are templated
+   */
+  
+  template<class T>
+  vector<T> multiGet(const vector<object_id> &ids) {
+
+    waitForLock();
+    vector<T> sol;
+    vector<object_id> _input, fromDb, input = ids;
+
+    while (input.size()) {
+
+      /* check in bigMap which of these ids are already here. */
+      fromDb = bigMap_->resolve(input, this);
+      /*
+        memcache check should go here.
+        --
+        sync request only those we don't have.
+       */
+      connPool_->getFreeWorkLink()->resolve(fromDb, this);
+
+      Guard g(bigMap_->lock_);
+
+      _input.clear();
+
+      for (unsigned int i = 0; i < input.size(); ++i) {
+        object_id id = input[i];
+        shared_ptr<DbRow> ptr = bigMap_->get(id);
+        /*
+          if requested object isn't in bigMap at all?
+          there is posibility that some other thread changed
+          one of our objects after we made
+          sure that this object is in our bigMap. if this is
+          so, I will do my while loop one more time with modified
+          objects in my input.
+         */
+        if (ptr->flag_ != TUNA_OK && ptr->flag_ != TUNA_NON_EXISTENT) {
+          _input.push_back(id);
+          make_log("OBJECT MODIFIED!"); 
+        } else if (ptr->flag_ == TUNA_OK) {
+          sol.push_back( *( static_pointer_cast<T, void>(ptr->object_) ) );
+        } 
+      }
+      input = _input;
+    }
+
+    // sol.size() == ids.size()
+    return sol;
+  }
+
+  template<class T> 
+  vector<T> getFrom(const string &qname,
+    const vector<string> &args) {
+
+    waitForLock();
+
+    return multiGet<T>( simpleQuery(qname, args).nums );
+  }
 
 };
 
