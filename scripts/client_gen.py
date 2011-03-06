@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Copyright 2011 Matija Osrecki
 #
@@ -56,7 +57,7 @@ class TType:
     def parse(raw):
 
         if raw.find('list') != -1:
-            lt = re.findall(r'list<([<>0-9a-zA-Z_]+)>', raw)
+            lt = re.findall(r'list<([<>0-9a-zA-Z_\.]+)>', raw)
             return TType('list', TType.parse(lt[0]))
 
         return TType(raw)
