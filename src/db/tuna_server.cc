@@ -177,6 +177,12 @@ class TunaHandler : virtual public TunaIf {
 
 int main(int argc, char **argv) {
   int port = 9090;
+  if (argc == 2) {
+    port = atoi(argv[1]);
+    printf("using port %d\n", port); 
+  } else {
+    printf("using default port %d\n", port); 
+  }
   shared_ptr<TunaHandler> handler(new TunaHandler());
   shared_ptr<TProcessor> processor(new TunaProcessor(handler));
   shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));

@@ -15,7 +15,7 @@ SCRIPTS=../../scripts/
 OBJ_DIR = obj
 BIN_DIR = bin
 
-INC = ../../src gen-cpp /usr/local/include/thrift service
+INC = ../../src gen-cpp /usr/local/include/thrift service client .
 LIB = thrift pq pqxx 
 
 VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/worker/gen-cpp
@@ -37,15 +37,22 @@ backup :
 thrift : types
 	thrift --gen cpp -r thrift/tuna.thrift
 
+gen_client : thrift
+	$(SCRIPTS)client_gen.py cpp thrift/tuna.thrift
+	mv tuna_client.h client/
+ 
 skeleton : thrift 
-	$(SCRIPTS)thrift-skeleton.py ../models/models.thrift template/skeleton.template gen-cpp/Tuna_server.skeleton.cpp TunaServer.cpp
+	$(SCRIPTS)thrift-skeleton.py ../models/models.thrift template/skeleton.template gen-cpp/Tuna_server.skeleton.cpp tuna_server.cc
 	rm gen-cpp/Tuna_server.skeleton.cpp
   
 tuna_test : thrift
 	g++ -obin/tuna service/main.cc $(CXXFLAGS) $(addprefix -I, $(INC)) $(addprefix -l, $(LIB))
 
 server : skeleton
-	g++ -obin/server gen-cpp/*.cpp TunaServer.cpp $(CXXFLAGS) $(addprefix -I, $(INC)) $(addprefix -l, $(LIB))
+	g++ -obin/server gen-cpp/*.cpp tuna_server.cc $(CXXFLAGS) $(addprefix -I, $(INC)) $(addprefix -l, $(LIB))
+
+unit : gen_client skeleton
+	g++ -obin/test gen-cpp/*.cpp unit_test.cc $(CXXFLAGS) $(addprefix -I, $(INC)) -lthrift 
 
 create_db : types
 	cat sql/init/create_db.sql > /tmp/temp.sql

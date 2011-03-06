@@ -53,7 +53,12 @@ namespace eval { namespace tuna {
   const int TUNA_RESERVED = 1;
   const int TUNA_NON_EXISTENT = 2;
   const int TUNA_OK = 3;
-  const int COLLECTOR_PERIOD = 3;
+
+  /*
+    bigMap will store no more than 2*COLLECTOR_PERIOD
+    elements.
+   */
+  const int COLLECTOR_PERIOD = 100;
 
   const char *QUERY_FILE = "sql/querys/eval.sql";
 
