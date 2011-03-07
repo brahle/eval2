@@ -13,6 +13,11 @@
 using namespace eval::tuna;
 using namespace eval::model;
 
+void cekaj(std::string koliko) {
+  system( ("sleep " + koliko).c_str() );
+  printf("zavrsio sam sleep\n"); 
+}
+
 namespace eval { 
 
 class TunaClient {
@@ -34,6 +39,8 @@ class TunaClient {
     client_ = client;
     transport_ = transport;
     transport_->open();
+    printf("otvorio sam transpor\n");
+    cekaj("6");
   }
 
   ~TunaClient() {

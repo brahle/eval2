@@ -1,11 +1,14 @@
 #include <iostream>
 #include <tuna_client_radi.h>
+#include <cstdlib>
 
 
-eval::TunaClient T("localhost", 9090);
 
 int main() {
-  T.destroy(202);
+  eval::TunaClient T("localhost", 9090);
+  system("sleep 5");
+  T.ping();
+  system("sleep 5");
   return 0;
 }
 

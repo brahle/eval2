@@ -1,5 +1,4 @@
 #
-# Copyright 2011 Matija Osrecki
 #
 # TODO copy notice
 #
@@ -23,6 +22,7 @@ VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/wor
 # compiler flags
 
 CXXFLAGS = -O3 -Wall
+CXXDEBFLAGS = -g -ggdb -Wall
 
 gen_dirs : 
 	mkdir -p bin
@@ -53,6 +53,9 @@ server : skeleton
 
 unit : gen_client skeleton
 	g++ -obin/test gen-cpp/*.cpp unit_test.cc $(CXXFLAGS) $(addprefix -I, $(INC)) -lthrift 
+
+unit_deb : gen_client skeleton
+	g++ -obin/test gen-cpp/*.cpp unit_test.cc $(CXXDEBFLAGS) $(addprefix -I, $(INC)) -lthrift 
 
 create_db : types
 	cat sql/init/create_db.sql > /tmp/temp.sql

@@ -16,7 +16,7 @@ INSERT AFTER class TunaHandler
   Tuna T_;
 END
 
-INSERT AFTER int port = 9090
+INSERT AFTER port = 9090
   if (argc == 2) {
     port = atoi(argv[1]);
     printf("using port %d\n", port); 
