@@ -114,38 +114,45 @@ def read_services(data):
 
 # **************** GENERATORS ****************
 
-def is_struct(ttype):
-    return ttype.type == 'list' or ttype.type == 'string'
 
 def thrift_to_cpp_type(ttype):
+    struct = 0
+
     if ttype.type == 'i16':
-        return 'short int'
+        tip = 'short int'
     elif ttype.type == 'i32':
-        return 'int'
+        tip = 'int'
     elif ttype.type == 'i64':
-        return 'long long'
+        tip = 'long long'
     elif ttype.type == 'byte':
-        return 'char'
-    elif ttype.type == 'boolean':
-        return 'bool'
+        tip = 'char'
+    elif ttype.type == 'boolean' or ttype.type == 'bool':
+        tip = 'bool'
     elif ttype.type == 'double':
-        return 'double'
+        tip = 'double'
+    elif ttype.type == 'void':
+        tip = 'void'
     elif ttype.type == 'string':
-        return 'std::string'
+        tip = 'std::string'
+        struct = 1
     elif ttype.type == 'list':
-        return 'std::vector< %s >' % thrift_to_cpp_type(ttype.ltype)
+        tip = 'std::vector< %s >' % thrift_to_cpp_type(ttype.ltype)[0]
+        struct = 2
+    else:
+        tip = ttype.type.split('.')[-1]
+        struct = 1
 
-    return ttype.type
-
-
+    return (tip, struct)
 
 # cpp generator
 def generate_cpp(service):
     filename = re.sub(r'\b([A-Z])', r'_\1', service.name.lower()) + '_client'
 
+    tab = '  '
+
     tw = textwrap.TextWrapper()
     tw.width = 80
-    tw.subsequent_indent = '    '
+    tw.subsequent_indent = '      '
     tw.break_long_words = False
 
     out = open(filename + '.h', 'w')
@@ -176,16 +183,18 @@ def generate_cpp(service):
         '  %s(const std::string &ip, const int port) {' % classname,
         '    boost::shared_ptr<%s> socket(\n      new %s(ip, port));\n' % 
              (transport, socket),
-        '    boost::shared_ptr<%s> transport(\n      new %s(socket));\n' % 
+        '    transport_ = boost::shared_ptr<%s>(\n      new %s(socket));\n' % 
              (transport, btran),
         '    boost::shared_ptr<%s> protocol(\n      new %s(transport_));\n' % 
              (protocol, bprot),
-        '    boost::shared_ptr< ::%s> client(\n      new ::%s(protocol));' %
+        '    client_ = boost::shared_ptr< ::%s>(\n      new ::%s(protocol));' %
              (classname, classname),
         '',
-        '    client_ = client;',
-        '    transport_ = transport;',
-        '    transport_->open();',
+        '    try {',
+        '      transport_->open();',
+        '    } catch(const apache::thrift::TException &tx) {',
+        '      // TODO(someone): log this', 
+        '    }',
         '  }\n',
         '  ~%s() {' % classname,
         '    try {',
@@ -197,35 +206,49 @@ def generate_cpp(service):
         ]
 
     for f in service.functions:
-        return_type = thrift_to_cpp_type(f.type)
+        rt = thrift_to_cpp_type(f.type)
 
+        if rt[1] == 0:
+            return_type = rt[0]
+        elif rt[1] == 1:
+            return_type = 'boost::shared_ptr<%s>' % rt[0]
+        else:
+            return_type = 'boost::shared_ptr< %s >' % rt[0]
+        
         args = []
-        
-        if is_struct(f.type):
-            args.append(('%s &' % (return_type), 'return_'))
-            return_type = 'void'
-        
         for p in f.params:
-            cctype = 'const ' + thrift_to_cpp_type(p[0])
+            cctype = thrift_to_cpp_type(p[0])
 
-            if is_struct(p[0]):
-                cctype = cctype + '&'
-                
-            args.append((cctype, p[1]))
+            if cctype[1] == 0:
+                args.append(('const %s' % cctype[0], p[1]))
+            else:
+                args.append(('const %s &' % cctype[0], p[1]))
 
         fun = '  %s %s(' % (return_type, f.name)
         fun += ', '.join([a[0] + ' ' + a[1] for a in args]) + ') {'
 
         fun = tw.fill(fun) + '\n'
-        
-        if return_type != 'void':
-            fun += '    return ';
-        else:
-            fun += '    ';
 
-        fun += 'client_->%s(%s);\n  }\n' %\
-            (f.name,', '.join([a[1] for a in args]))
+        fun_block = []
+
+        fun += tab*2
+        if return_type != 'void' and rt[1] == 0:
+            fun += 'return '
         
+        if rt[1] != 0:
+            fun += '%s return_(\n%snew %s());\n\n' % (return_type, tab*3, rt[0])
+            args.insert(0, (return_type, '*return_'))
+            fun += tab*2
+
+        fun += 'client_->%s(%s);\n' %\
+            (f.name,', '.join([a[1] for a in args]))
+            
+
+        if rt[1] == 0:
+            fun += tab + '}\n'
+        else:
+            fun += tab*2 + 'return return_;\n  }\n'
+
         lines.append(fun)
 
     lines += [
@@ -266,10 +289,10 @@ def main():
 
     if lang == 'cpp':
         generate_cpp(services[0])
-    elif lang == 'python':
-        generate_python(services[0])
+#    elif lang == 'python':
+#        generate_python(services[0])
     else:
-        print 'Unsupported language %s. Try cpp or python.' % lang
+        print 'Unsupported language %s. Try cpp.' % lang
         exit(1)
 
 
