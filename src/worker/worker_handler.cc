@@ -25,12 +25,11 @@
 
 namespace eval {
 
-bool WorkerHandler::ping(){
+void WorkerHandler::ping(){
   // TODO(prasko): implement
-  return true;
 }
 
-void WorkerHandler::giveTask(const int taskId) {
+void WorkerHandler::giveJob(const int jobId) {
   // TODO(prasko): implement work
   usleep(5);
 }

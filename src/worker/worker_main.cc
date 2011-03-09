@@ -67,6 +67,7 @@ void startServer(int port) {
 int main(int argc, char **argv) {
   assert(argc == 3);
 
+
   /*
    TODO(prasko): read configuration: 
     - dispatcher's ip+port 

@@ -92,7 +92,14 @@ def read_services(data):
                               rs[1], re.DOTALL)
         
         for rw in raw_funs:
-            f = Function(TType.parse(rw[0].translate(None, ' ')), rw[1])
+
+            if rw[0].find('oneway') != -1:
+                tip = TType.parse(
+                    ''.join(rw[0].strip().split(' ')[1:]).translate(None, ' '))
+            else:
+                tip = TType.parse(rw[0].translate(None, ' '))
+            
+            f = Function(tip, rw[1])
 
             raw_params = [p.strip().translate(None, '\n\r') 
                           for p in rw[2].split(',')]

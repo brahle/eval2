@@ -1,5 +1,5 @@
- #ifndef EVAL_DISPATCHER_CLIENT_H_
-#define EVAL_DISPATCHER_CLIENT_H_
+#ifndef EVAL_WORKER_CLIENT_H_
+#define EVAL_WORKER_CLIENT_H_
 
 #include <string>
 #include <protocol/TBinaryProtocol.h>
@@ -8,14 +8,14 @@
 #include <transport/TTransportUtils.h>
 #include <boost/shared_ptr.hpp>
 
-#include "gen-cpp/Dispatcher.h"
+#include "gen-cpp/Worker.h"
 
 namespace eval { 
 
-class DispatcherClient {
+class WorkerClient {
  public:
 
-  DispatcherClient(const std::string &ip, const int port) {
+  WorkerClient(const std::string &ip, const int port) {
     boost::shared_ptr<apache::thrift::transport::TTransport> socket(
       new apache::thrift::transport::TSocket(ip, port));
 
@@ -25,8 +25,8 @@ class DispatcherClient {
     boost::shared_ptr<apache::thrift::protocol::TProtocol> protocol(
       new apache::thrift::protocol::TBinaryProtocol(transport_));
 
-    client_ = boost::shared_ptr< ::DispatcherClient>(
-      new ::DispatcherClient(protocol));
+    client_ = boost::shared_ptr< ::WorkerClient>(
+      new ::WorkerClient(protocol));
 
     try {
       transport_->open();
@@ -35,7 +35,7 @@ class DispatcherClient {
     }
   }
 
-  ~DispatcherClient() {
+  ~WorkerClient() {
     try {
       transport_->close();
     } catch(const apache::thrift::TException &tx) {
@@ -43,29 +43,20 @@ class DispatcherClient {
     }
   }
 
-  bool ping() {
-    return client_->ping();
+  void ping() {
+    client_->ping();
   }
 
-  void addTask(const int taskId) {
-    client_->addTask(taskId);
-  }
-
-  void freeWorker(const int workerId) {
-    client_->freeWorker(workerId);
-  }
-
-  int registerWorker(const int workerId, const std::string & ip, const int port)
-      {
-    return client_->registerWorker(workerId, ip, port);
+  void giveJob(const int jobId) {
+    client_->giveJob(jobId);
   }
 
  private:
-  boost::shared_ptr< ::DispatcherClient> client_;
+  boost::shared_ptr< ::WorkerClient> client_;
   boost::shared_ptr<apache::thrift::transport::TTransport> transport_;
 
 };
 
 }  // namespace
 
-#endif  // EVAL_DISPATCHER_CLIENT_H_
+#endif  // EVAL_WORKER_CLIENT_H_
