@@ -33,7 +33,7 @@ class WorkerHandler : virtual public WorkerIf {
 
   void ping();
   
-  void giveJob(const int /* taskId */);
+  void giveJob(const int /* jobId */);
 };
 
 }  // namespace
