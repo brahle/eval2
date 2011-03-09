@@ -19,20 +19,22 @@ class DispatcherClient {
     boost::shared_ptr<apache::thrift::transport::TTransport> socket(
       new apache::thrift::transport::TSocket(ip, port));
 
-    boost::shared_ptr<apache::thrift::transport::TTransport> transport(
+    transport_ = boost::shared_ptr<apache::thrift::transport::TTransport>(
       new apache::thrift::transport::TBufferedTransport(socket));
 
     boost::shared_ptr<apache::thrift::protocol::TProtocol> protocol(
       new apache::thrift::protocol::TBinaryProtocol(transport_));
 
-    boost::shared_ptr< ::DispatcherClient> client(
+    client_ = boost::shared_ptr< ::DispatcherClient>(
       new ::DispatcherClient(protocol));
 
-    client_ = client;
-    transport_ = transport;
-    transport_->open();
-  }
+    try {
+      transport_->open();
+    } catch(const apache::thrift::TException &tx) {
+      // TODO(someone): log this
 
+    }
+  }
   ~DispatcherClient() {
     try {
       transport_->close();
@@ -53,9 +55,9 @@ class DispatcherClient {
     client_->freeWorker(workerId);
   }
 
-  void registerWorker(std::vector< std::vector< std::string > > & return_, const
-    int workerId, const std::string& ip, const int port) {
-    client_->registerWorker(return_, workerId, ip, port);
+  int registerWorker(const int workerId, const std::string & ip, const int port)
+      {
+    return client_->registerWorker(workerId, ip, port);
   }
 
  private:

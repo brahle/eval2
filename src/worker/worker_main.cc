@@ -26,7 +26,6 @@
 #include <transport/TSocket.h>
 #include <transport/TTransportUtils.h>
 
-#include "dispatcher/gen-cpp/Dispatcher.h"
 #include "dispatcher/dispatcher_client.h"
 
 #include "worker/worker_handler.h"
@@ -34,21 +33,10 @@
 using boost::shared_ptr;
 
 void registerSelf(int id, int port) {
-  eval::DefaultDispatcherClient client_wrapper("localhost", port);
-
-  shared_ptr<TTransport> transport = client_wrapper.transport();
-
-  shared_ptr<DispatcherClient> client = client_wrapper.client();
-
-  try {
-    transport->open();
-
-    client->registerWorker(id, "localhost", port);
-
-    transport->close();
-  } catch(const apache::thrift::TException &tx) {
-    printf("ERROR: %s\n", tx.what());
-  }
+  eval::DispatcherClient client("localhost", port);
+  client.ping();
+  client.registerWorker(id, "localhost", port); 
+  while(1) {}
 }
 
 void startServer(int port) {
@@ -73,6 +61,9 @@ void startServer(int port) {
   server.serve();
 }
 
+/**
+  Arguments - worker id, dispatcher port
+*/
 int main(int argc, char **argv) {
   assert(argc == 3);
 
@@ -82,12 +73,12 @@ int main(int argc, char **argv) {
     - worker's ip+port or id
   */
 
-  //  int id = atoi(argv[1]);
+  int id = atoi(argv[1]);
   int port = atoi(argv[2]);
 
-  //  registerSelf(id, port);
+  registerSelf(id, port);
 
-  startServer(port);
+  //  startServer(port);
 
   return 0;
 }
