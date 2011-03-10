@@ -4,6 +4,8 @@
  * TODO copy notice
  */
 
+#include <tuna.h>
+
 namespace eval { namespace tuna {
 
 QueueLink::QueueLink() {

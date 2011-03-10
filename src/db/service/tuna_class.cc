@@ -4,6 +4,8 @@
 * TODO copy notice
 */
 
+#include <tuna.h>
+
 namespace eval { namespace tuna {
 
 Tuna::Tuna() {
@@ -51,7 +53,7 @@ int Tuna::loadTables() {
 int Tuna::loadQuerys() {
   Guard g(lock_);
 
-  ifstream inSql(QUERY_FILE); 
+  ifstream inSql(QUERY_FILE.c_str()); 
   vector<string> oneQuery;
   string line;
   int sol = 0;

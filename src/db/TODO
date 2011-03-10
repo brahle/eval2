@@ -1,0 +1,5 @@
+dodat u psql-thrift da generira dva fajla .h i .cc
+
+istrazit zasto python napravi touch na fajlu kad ga otvori za citanje
+
+istrazit exception-e napravit svoj, i bacat ga kad treba

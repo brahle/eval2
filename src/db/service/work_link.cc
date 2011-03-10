@@ -4,9 +4,7 @@
  * TODO copy notice
  */
 
-using std::string;
-using std::queue;
-using std::vector;
+#include <tuna.h>
 
 namespace eval { namespace tuna {
 
@@ -31,8 +29,6 @@ result WorkLink::_execQuery(shared_ptr<Query> Q,
 
   {
     Guard g(lock_);
-
-    // ovdje jos ide invalidiranje //
 
     for (unsigned int i = 0; i < Q->sql_.size(); ++i) {
       make_log( "QUERY: " + Q->apply(data, i, conn_) );

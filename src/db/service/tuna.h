@@ -6,19 +6,16 @@
 #include <ctime>
 #include <string>
 #include <cstdio>
-#include <utility>
+//#include <utility>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 
-#include <protocol/TBinaryProtocol.h>
-#include <server/TThreadedServer.h>
 #include <thrift/concurrency/Mutex.h>
-#include <transport/TServerSocket.h>
-#include <transport/TBufferTransports.h>
-
 
 #include <pqxx/pqxx>
+
+#include <tuna_types.h>
 
 #define TUNA_MAX_TABLES 100  
 #define OBJECT_ID_PRINTF "%d"
@@ -42,6 +39,7 @@ using std::string;
 using std::vector;
 using std::ifstream;
 using std::make_pair;
+using std::exception;
 
 using boost::shared_ptr;
 
@@ -60,7 +58,7 @@ namespace eval { namespace tuna {
    */
   const int COLLECTOR_PERIOD = 100;
 
-  const char *QUERY_FILE = "sql/querys/eval.sql";
+  const string QUERY_FILE = "sql/querys/eval.sql";
 
   const string ime_flag[5] =
     {"EMPTY","RESERVED","NON_EXISTENT","OK","MODIFIED"};
@@ -82,14 +80,5 @@ namespace eval { namespace tuna {
 #include "db/service/work_link.h"
 #include "db/service/c_pool.h"
 #include "db/service/tuna_class.h"
-
-#include "db/service/link_base.cc"
-#include "db/service/query.cc"
-#include "db/service/db_row.cc"
-#include "db/service/db_assoc.cc"
-#include "db/service/queue_link.cc"
-#include "db/service/work_link.cc"
-#include "db/service/c_pool.cc"
-#include "db/service/tuna_class.cc"
 
 #endif

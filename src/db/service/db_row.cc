@@ -4,6 +4,8 @@
 * TODO copy notice
 */
 
+#include <tuna.h>
+
 namespace eval { namespace tuna {
 
 DbRow::~DbRow() { make_log("OSLOBADJAM DBROW!", id_); }

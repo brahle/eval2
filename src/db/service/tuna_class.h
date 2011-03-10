@@ -91,7 +91,16 @@ class Tuna {
     waitForLock();
     vector<T> sol;
     vector<object_id> _input, fromDb, input = ids;
+    T proto;
 
+    for (unsigned int i = 0; i < ids.size(); ++i) {
+      if (tablename[ids[i] % TUNA_MAX_TABLES] != getTableName(proto)) {
+        throw "id and object type do not match"; 
+      }
+    }
+    /*
+      check if these ids are objects of type T
+     */
     while (input.size()) {
 
       /* check in bigMap which of these ids are already here. */
@@ -120,7 +129,7 @@ class Tuna {
          */
         if (ptr->flag_ != TUNA_OK && ptr->flag_ != TUNA_NON_EXISTENT) {
           _input.push_back(id);
-          make_log("OBJECT MODIFIED!"); 
+          //make_log( string("OBJECT MODIFIED!") ); 
         } else if (ptr->flag_ == TUNA_OK) {
           sol.push_back( *( static_pointer_cast<T, void>(ptr->object_) ) );
         } 
