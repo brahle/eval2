@@ -1,14 +1,14 @@
 #include <iostream>
-#include <tuna_client_radi.h>
+#include <client_radi.h>
 #include <cstdlib>
 
-
+using namespace std;
+using boost::shared_ptr;
 
 int main() {
   eval::TunaClient T("localhost", 9090);
-  system("sleep 5");
-  T.ping();
-  system("sleep 5");
+  shared_ptr<Task> A = T.getTask(102);
+  cout << A->id << A->type << A->filePath << endl;
   return 0;
 }
 

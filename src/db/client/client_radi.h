@@ -10,6 +10,9 @@
 
 #include "gen-cpp/Tuna.h"
 
+using namespace eval::tuna;
+using namespace eval::model;
+
 namespace eval { 
 
 class TunaClient {
