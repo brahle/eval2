@@ -294,6 +294,16 @@ def generate_conv(out, models):
     out.write("\n" + tab + "throw(2);\n")
     out.write("}\n\n")
     
+
+    # getTableName:
+    for model in models:
+        cname = model.cname
+        oname = convert_name(model.cname)
+        out.write("string getTableName")
+        out.write("(const %s &%s) {\n" % (cname,oname))
+        out.write(tab + "return \"%s\";\n" % (model.tname));
+        out.write("}\n\n")
+
     # toQuery:
     for model in models:
         cname = model.cname
