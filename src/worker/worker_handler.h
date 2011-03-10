@@ -31,9 +31,9 @@ class WorkerHandler : virtual public WorkerIf {
 
   WorkerHandler() {}
 
-  bool ping();
+  void ping();
   
-  void giveTask(const int taskId);
+  void giveJob(const int /* jobId */);
 };
 
 }  // namespace

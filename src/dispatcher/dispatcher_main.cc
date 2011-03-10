@@ -19,36 +19,42 @@
  *
  */
 
-#include <protocol/TBinaryProtocol.h>
 #include <server/TThreadedServer.h>
 #include <thrift/concurrency/Mutex.h>
-#include <transport/TServerSocket.h>
-#include <transport/TBufferTransports.h>
 
 #include "dispatcher/dispatcher_handler.h"
+#include "utility/ServerFactory.h"
 
 using boost::shared_ptr;
+using apache::thrift::server::TThreadedServer;
+
 
 void startServer(int port) {
-    shared_ptr<eval::DispatcherHandler> handler(
-      new eval::DispatcherHandler());
+  shared_ptr<TThreadedServer> server = 
+    eval::util::ServerFactory<eval::DispatcherHandler,
+    DispatcherProcessor, TThreadedServer>::createServer(port);
 
-    shared_ptr<apache::thrift::TProcessor> processor(
-      new DispatcherProcessor(handler));
+  /*
+  shared_ptr<eval::DispatcherHandler> handler(
+    new eval::DispatcherHandler());
 
-    shared_ptr<apache::thrift::server::TServerTransport> serverTransport(
-      new apache::thrift::transport::TServerSocket(port));
+  shared_ptr<apache::thrift::TProcessor> processor(
+    new DispatcherProcessor(handler));
 
-    shared_ptr<apache::thrift::transport::TTransportFactory> transportFactory(
-      new apache::thrift::transport::TBufferedTransportFactory());
+  shared_ptr<apache::thrift::server::TServerTransport> serverTransport(
+    new apache::thrift::transport::TServerSocket(port));
 
-    shared_ptr<apache::thrift::protocol::TProtocolFactory> protocolFactory(
-      new apache::thrift::protocol::TBinaryProtocolFactory());
+  shared_ptr<apache::thrift::transport::TTransportFactory> transportFactory(
+    new apache::thrift::transport::TBufferedTransportFactory());
 
-    apache::thrift::server::TThreadedServer server(
-      processor, serverTransport, transportFactory, protocolFactory);
+  shared_ptr<apache::thrift::protocol::TProtocolFactory> protocolFactory(
+    new apache::thrift::protocol::TBinaryProtocolFactory());
 
-    server.serve();
+  apache::thrift::server::TThreadedServer server(
+    processor, serverTransport, transportFactory, protocolFactory);
+*/
+
+  server->serve();
 }
 
 int main(int argc, char *argv[]) {

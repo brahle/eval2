@@ -21,10 +21,10 @@
 
 service Worker {
 	
-  bool ping(), 
+  oneway void ping(), 
 
   /**
-   * Sets the given task for computation on the worker.
+   * Sets the given job for computation on the worker.
    */
-  oneway void giveTask(1:i32 taskId)
+  oneway void giveJob(1:i32 jobId)
 }

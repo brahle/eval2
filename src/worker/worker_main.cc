@@ -19,53 +19,34 @@
  *
  */
 
-#include <protocol/TBinaryProtocol.h>
 #include <server/TSimpleServer.h>
-#include <transport/TBufferTransports.h>
-#include <transport/TServerSocket.h>
-#include <transport/TSocket.h>
-#include <transport/TTransportUtils.h>
-
 #include "dispatcher/dispatcher_client.h"
-
+#include "utility/ServerFactory.h"
 #include "worker/worker_handler.h"
+#include "worker/gen-cpp/Worker.h"
 
+using apache::thrift::server::TSimpleServer;
 using boost::shared_ptr;
 
-void registerSelf(int id, int port) {
-  eval::DispatcherClient client("localhost", port);
+void registerSelf(int id, int dport, int wport) {
+  eval::DispatcherClient client("localhost", dport);
   client.ping();
-  client.registerWorker(id, "localhost", port); 
-  while(1) {}
+  client.registerWorker(id, "localhost", wport); 
 }
 
-void startServer(int port) {
-  shared_ptr<eval::WorkerHandler> handler(
-    new eval::WorkerHandler());
+void startServer(int wport) {
+  shared_ptr<TSimpleServer> server = 
+    eval::util::ServerFactory<eval::WorkerHandler, 
+    WorkerProcessor, TSimpleServer>::createServer(wport);
 
-  shared_ptr<apache::thrift::TProcessor> processor(
-    new WorkerProcessor(handler));
-
-  shared_ptr<apache::thrift::server::TServerTransport> serverTransport(
-    new apache::thrift::transport::TServerSocket(port));
-
-  shared_ptr<apache::thrift::transport::TTransportFactory> transportFactory(
-    new apache::thrift::transport::TBufferedTransportFactory());
-
-  shared_ptr<apache::thrift::protocol::TProtocolFactory> protocolFactory(
-    new apache::thrift::protocol::TBinaryProtocolFactory());
-
-  apache::thrift::server::TSimpleServer server(
-    processor, serverTransport, transportFactory, protocolFactory);
-
-  server.serve();
+  server->serve();
 }
 
 /**
-  Arguments - worker id, dispatcher port
+  Arguments - worker id, dispatcher port, worker port
 */
 int main(int argc, char **argv) {
-  assert(argc == 3);
+  assert(argc == 4);
 
   /*
    TODO(prasko): read configuration: 
@@ -74,11 +55,12 @@ int main(int argc, char **argv) {
   */
 
   int id = atoi(argv[1]);
-  int port = atoi(argv[2]);
+  int dispatcher_port = atoi(argv[2]);
+  int worker_port = atoi(argv[3]);
 
-  registerSelf(id, port);
+  registerSelf(id, dispatcher_port, worker_port);
 
-  //  startServer(port);
+  startServer(worker_port);
 
   return 0;
 }
