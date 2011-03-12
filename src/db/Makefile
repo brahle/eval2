@@ -76,17 +76,17 @@ $(OBJ)/tuna/%.o : service/%.cc service/%.h service/tuna.h
 $(OBJ)/thrift/%.o : $(GEN_CPP_DIR)/%.cc $(GEN_CPP_DIR)/*.h
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $<
 
-$(OBJ)/%.o : %.cc client/* $(GEN_CPP_DIR)/* service/* 
+$(OBJ)/%.o : %.cc $(GEN_CPP_DIR)/* service/* 
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $(addprefix -l, $(LIB)) $<
 
-$(BIN)/tnserver : dirs $(OBJ)/tuna_server.o $(THRIFT_PSQL_H) $(addprefix $(OBJ)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ)/tuna/, $(TUNA_OBJS))
+$(BIN)/tnserver : dirs tuna_server.cc $(OBJ)/tuna_server.o $(THRIFT_PSQL_H) $(addprefix $(OBJ)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ)/tuna/, $(TUNA_OBJS))
 	g++ -o $(BIN)/tnserver $(OBJ)/tuna_server.o $(addprefix $(OBJ)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ)/tuna/, $(TUNA_OBJS)) $(addprefix -l, $(LIB))
 
 generate :
 	rm -rf $(GEN_DIR) 
 	make tuna_server.cc $(CLIENT_H) &> /dev/null
 
-run : $(BIN)/tnserver stop
+run : $(BIN)/tnserver $(CLIENT_H) stop
 	./scripts/run 
 
 stop :
