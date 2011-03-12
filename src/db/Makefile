@@ -19,7 +19,7 @@ BIN_DIR = bin
 GEN_CPP_DIR = gen-cpp
 
 INC = ../../src gen-cpp /usr/local/include/thrift service client .
-DIRS = $(OBJ_DIR) $(BIN_DIR) $(OBJ_TUNA_DIR) $(OBJ_THRIFT_DIR)
+DIRS = $(OBJ_DIR) $(BIN_DIR) $(OBJ_TUNA_DIR) $(OBJ_THRIFT_DIR) thrift
  
 LIB = thrift pq pqxx 
 
@@ -34,9 +34,9 @@ CFLAGS = -O3 -Wall
 $(DIRS) : 
 	mkdir -p $(DIRS)
 
-thrift/tuna.thrift sql/tables.sql $(GEN_CPP_DIR)/thrift-psql.cc $(GEN_CPP_DIR)/thrift-psql.h : ../models/models.thrift template/tuna.thrift
-	mkdir -p $(GEN_CPP_DIR)
-	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql $(GEN_CPP_DIR)/thrift-psql template/tuna.thrift thrift/tuna.thrift
+thrift/tuna.thrift sql/tables.sql $(GEN_CPP_DIR)/thrift-psql.cc $(GEN_CPP_DIR)/thrift-psql.h : ../models/models.thrift template/tuna.thrift.template
+	mkdir -p $(GEN_CPP_DIR) thrift
+	$(SCRIPTS)thrift-psql.py ../models/models.thrift sql/tables.sql $(GEN_CPP_DIR)/thrift-psql template/tuna.thrift.template thrift/tuna.thrift
 
 db_backup :
 	sudo -u postgres pg_dump -C deval > sql/backup/deval_backup.sql
