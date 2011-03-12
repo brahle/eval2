@@ -98,6 +98,10 @@ class Tuna {
         throw TunaException("id and object type do not match");
       }
     }
+    if (input.size() >= COLLECTOR_PERIOD) {
+      throw TunaException("multiGet query to large. this is "
+        + "adjustable in service/tuna.h:COLLECTOR_PERIOD");
+    }
     /*
       check if these ids are objects of type T
      */

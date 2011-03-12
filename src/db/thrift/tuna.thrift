@@ -56,8 +56,8 @@ service Tuna {
 
   // *** Task ***
   	
-  	models.Task getTask(1: i32 id) throws(1: TunaExp e),
-  	list<models.Task> getTasks(1: list<i32> ids) throws(1: TunaExp e),
+  	models.Task getTask(1: i32 id),
+  	list<models.Task> getTasks(1: list<i32> ids),
   	list<models.Task> getTasksFrom(
   	  1: string qname,
   	  2: list<string> data

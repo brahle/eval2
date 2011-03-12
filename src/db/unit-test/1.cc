@@ -1,5 +1,5 @@
 /*
-  name: getTask
+  name: insert, get and destroy Task
  */
 
 #include <cstdlib>
@@ -14,9 +14,19 @@ int test() {
   eval::TunaClient T("localhost", 9090);
 
   try {
-    shared_ptr<Task> A = T.getTask(202);
+    Task a;
+    a.type = 5;
+    a.filePath = "test";
+    int id = T.insertTask(a);
+    shared_ptr<Task> A = T.getTask(id);
+    
+    if (A->filePath != a.filePath) {
+      return 1;
+    }
+    T.destroy(id);
+
   } catch (const TunaExp &e) {
-    cout << e.why << endl;
+    cerr << e.why << endl;
     return 1;
   }
 

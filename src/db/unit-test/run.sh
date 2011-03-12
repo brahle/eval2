@@ -10,7 +10,7 @@ do
 
   nap=`echo $col'-10-'${#f} | bc`
 
-  $i &> /dev/null
+  $i > /dev/null
 
   if [ $? -eq 0 ]; then
     echo -ne $f "\033["$nap"C [OK]\n"

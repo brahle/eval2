@@ -53,7 +53,7 @@ client/tuna_client.h : thrift/tuna.thrift
 tuna_server.cc : $(GEN_CPP_DIR)/server_skeleton_cc ../models/models.thrift template/skeleton.template
 	$(SCRIPTS)thrift-skeleton.py ../models/models.thrift template/skeleton.template $(GEN_CPP_DIR)/server_skeleton_cc tuna_server.cc
   
-$(OBJ_DIR)/tuna/%.o : service/%.cc service/%.h service/tuna.h
+$(OBJ_DIR)/tuna/%.o : service/%.cc service/%.h service/tuna.h 
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $<
 
 $(OBJ_DIR)/thrift/%.o : $(GEN_CPP_DIR)/%.cc $(GEN_CPP_DIR)/*.h
@@ -62,10 +62,10 @@ $(OBJ_DIR)/thrift/%.o : $(GEN_CPP_DIR)/%.cc $(GEN_CPP_DIR)/*.h
 $(OBJ_DIR)/%.o : %.cc client/* $(GEN_CPP_DIR)/* service/* 
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $(addprefix -l, $(LIB)) $<
 
-bin/server : $(DIRS) $(GEN_CPP_DIR) $(OBJ_DIR)/tuna_server.o $(addprefix $(OBJ_DIR)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ_DIR)/tuna/, $(TUNA_OBJS))
-	g++ -obin/server obj/tuna_server.o $(addprefix $(OBJ_DIR)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ_DIR)/tuna/, $(TUNA_OBJS)) $(addprefix -l, $(LIB))
+bin/tnserver : $(DIRS) $(GEN_CPP_DIR) $(OBJ_DIR)/tuna_server.o $(GEN_CPP_DIR)/thrift-psql.h $(addprefix $(OBJ_DIR)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ_DIR)/tuna/, $(TUNA_OBJS))
+	g++ -obin/tnserver obj/tuna_server.o $(addprefix $(OBJ_DIR)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ_DIR)/tuna/, $(TUNA_OBJS)) $(addprefix -l, $(LIB))
 
-run : bin/server
+run : bin/tnserver stop
 	./scripts/run 
 
 stop :
