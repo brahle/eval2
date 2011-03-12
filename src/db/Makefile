@@ -71,7 +71,15 @@ run : bin/server
 stop :
 	./scripts/stop
 
-create_db : sql/tables.sql db_backup
+create_db : sql/tables.sql
+	cat sql/init/create_db.sql > /tmp/temp.sql
+	cat sql/init/tuna.sql >> /tmp/temp.sql
+	cat sql/tables.sql >> /tmp/temp.sql
+	cat sql/init/refresh.sql >> /tmp/temp.sql
+	sudo -u postgres psql -f /tmp/temp.sql 
+	rm /tmp/temp.sql
+
+update_db : sql/tables.sql db_backup
 	cat sql/init/create_db.sql > /tmp/temp.sql
 	cat sql/init/tuna.sql >> /tmp/temp.sql
 	cat sql/tables.sql >> /tmp/temp.sql
