@@ -23,18 +23,13 @@ DIRS = $(OBJ_DIR) $(BIN_DIR) $(OBJ_TUNA_DIR) $(OBJ_THRIFT_DIR)
  
 LIB = thrift pq pqxx 
 
-VPATH = src:src/db:src/db/gen-cpp:src/queue:src/queue/gen-cpp:src/worker:src/worker/gen-cpp
-
-TUNA_OBJS = c_pool.o db_assoc.o db_row.o link_base.o query.o queue_link.o tuna_class.o work_link.o utility.o
+TUNA_OBJS = c_pool.o db_assoc.o db_row.o link_base.o query.o queue_link.o tuna_class.o work_link.o utility.o tuna_exception.o
 THRIFT_OBJS = models_constants.o models_types.o tuna_constants.o Tuna.o tuna_types.o thrift-psql.o
-
-TUNACC = service/*.cc
-THRIFTCC = gen-cpp/*.cc
 
 # compiler flags
 
 CFLAGS = -O3 -Wall
-CDBFLAGS = -g -ggdb -Wall
+#CFLAGS = -g -ggdb -Wall
 
 $(DIRS) : 
 	mkdir -p $(DIRS)
@@ -58,20 +53,23 @@ client/tuna_client.h : thrift/tuna.thrift
 tuna_server.cc : $(GEN_CPP_DIR)/server_skeleton_cc ../models/models.thrift template/skeleton.template
 	$(SCRIPTS)thrift-skeleton.py ../models/models.thrift template/skeleton.template $(GEN_CPP_DIR)/server_skeleton_cc tuna_server.cc
   
-$(OBJ_DIR)/tuna/%.o : service/%.cc 
+$(OBJ_DIR)/tuna/%.o : service/%.cc service/%.h service/tuna.h
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $<
 
-$(OBJ_DIR)/thrift/%.o : $(GEN_CPP_DIR)/%.cc 
+$(OBJ_DIR)/thrift/%.o : $(GEN_CPP_DIR)/%.cc $(GEN_CPP_DIR)/*.h
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $<
 
-$(OBJ_DIR)/%.o : %.cc 
+$(OBJ_DIR)/%.o : %.cc client/* $(GEN_CPP_DIR)/* service/* 
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $(addprefix -l, $(LIB)) $<
 
-server : $(DIRS) $(GEN_CPP_DIR) service/tuna.h $(OBJ_DIR)/tuna_server.o $(addprefix $(OBJ_DIR)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ_DIR)/tuna/, $(TUNA_OBJS))
+bin/server : $(DIRS) $(GEN_CPP_DIR) $(OBJ_DIR)/tuna_server.o $(addprefix $(OBJ_DIR)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ_DIR)/tuna/, $(TUNA_OBJS))
 	g++ -obin/server obj/tuna_server.o $(addprefix $(OBJ_DIR)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ_DIR)/tuna/, $(TUNA_OBJS)) $(addprefix -l, $(LIB))
 
-unit : client/tuna_client.h 
-	g++ -obin/test gen-cpp/*.cpp unit_test.cc $(CFLAGS) $(addprefix -I, $(INC)) -lthrift 
+run : bin/server
+	./scripts/run 
+
+stop :
+	./scripts/stop
 
 create_db : sql/tables.sql db_backup
 	cat sql/init/create_db.sql > /tmp/temp.sql

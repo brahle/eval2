@@ -95,7 +95,7 @@ class Tuna {
 
     for (unsigned int i = 0; i < ids.size(); ++i) {
       if (tablename[ids[i] % TUNA_MAX_TABLES] != getTableName(proto)) {
-        throw "id and object type do not match"; 
+        throw TunaException("id and object type do not match");
       }
     }
     /*

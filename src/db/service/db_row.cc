@@ -45,35 +45,6 @@ void DbRow::resolvePending(Tuna *T) {
    */
 }
 
-/*
-string DbRow::echo() {
-  if (flag_ != TUNA_OK) return "nije ok";
-  string sol;
-
-  printf("\n************%d*********\n", t.size());
-  return "tu";
-
-  for (unsigned int i = 0; i < t.size(); i++) {
-    sol = sol + "   " + t[i].as<string>("<null>");
-  }
-  
-  return sol;
-}
-
-*/
-
-/*result DbRow::getResult() {
-  if (flag_ == TUNA_NON_EXISTENT) {
-    throw("red ne postoji.");
-  }
-
-  if (flag_ == TUNA_OK || flag_ == TUNA_MODIFIED) {
-    return result_;
-  }
-
-  throw("neznam");
-}*/
-
 }} // eval::tuna 
 
 

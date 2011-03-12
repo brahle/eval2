@@ -38,7 +38,7 @@ string Link_base::makePGet(const vector<object_id> &ids, Tuna *T) {
   int table_id = ids[0] % TUNA_MAX_TABLES;
   
   if (!T->tablename[table_id].size()) {
-    throw(
+    throw TunaException(
       "object_id is invalid. no table has mod: "+stoi(table_id));
   }
 

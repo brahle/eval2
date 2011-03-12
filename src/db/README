@@ -1,0 +1,51 @@
+za pokretanje i testiranje tune:
+
+make create_db # (ovo ce napravit backup baze i obrisat je, skripta NE vrati podatke automatski (jos))
+make run
+cd unit-test
+make run
+
+kako se generiraju fajlovi:
+
+
+          ../models/models.thrift
+                    |                      template/tuna.thrift
+                    |                              |
+      +-----------[ 1 ]--+-------------------+---[ 4 ]
+      |                  | 1) thrift-psql.py |
+      |                  +--------+----------+
+      |                           | 
+      |           [ 2 ]-----------+---------[ 5 ]-------------------------[ 3 ]
+      |             |                         |                             |
+      |      sql/tables.sql            thrift/tuna.thrift        gen-cpp/thrift-psql.{h,cc}     
+      |      ~~~~~~~~~~~~~~                   |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                      [ 1 ]------------+--------------[ 1 ]
+      |               +--------+---------+            +--------+--------+
+      |               | 2) thrift engine |            |3) client_gen.py |
+      |               +--------+---------+            +--------+--------+
+      |                        |                               |
+      |                 gen-cpp/*.{h|cpp}            client/tuna_client.h
+      |                 ~~~~~~~~~~~~~~~~~            ~~~~~~~~~~~~~~~~~~~~ 
+      |                        |
+    [ 1 ]---+----------------[ 3 (server_skeleton_cc) ]
+            |
+            |
+            |         template/skeleton.template
+            |                    |
+            +------------------[ 2 ]
+            |
++-----------+----------+
+|4) thrfti-sekelton.py |
++-----------+----------+
+            |
+          [ 4 ]
+            |
+      tuna_server.cc
+      ~~~~~~~~~~~~~~
+
+brojevi u uglatim zagradama kod 1) thrift-psql.py su argumetni za skriptu (1)
+brojevi u uglatim zagradama kod 4) thrift-skeleton.py su argumenti za (4)
+
+skripte (2) i (3) imaju samo jedan arguemnt i jasno je sa slike
+fajlovi podcrtani sa tildama su output fileove koji se korist.

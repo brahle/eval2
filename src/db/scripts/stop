@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo 'stoping tuna service...'
+kill -15 `cat /tmp/tuna_pid`

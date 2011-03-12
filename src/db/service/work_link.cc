@@ -8,8 +8,7 @@
 
 namespace eval { namespace tuna {
 
-WorkLink::WorkLink() {
-}
+WorkLink::WorkLink() {}
 
 result WorkLink::_execQuery(const string &qname, Tuna *T) {
   return _execQuery(qname, vector<string>(0), T);
@@ -17,6 +16,10 @@ result WorkLink::_execQuery(const string &qname, Tuna *T) {
 
 result WorkLink::_execQuery(const string &qname,
   const vector<string> &data, Tuna *T) {
+  
+  if (!(T->querys_.count(qname))) {
+    throw TunaException("no such query: " + qname);
+  }
 
   return _execQuery(T->querys_[qname], data, T);
 }
@@ -30,12 +33,16 @@ result WorkLink::_execQuery(shared_ptr<Query> Q,
   {
     Guard g(lock_);
 
-    for (unsigned int i = 0; i < Q->sql_.size(); ++i) {
-      make_log( "QUERY: " + Q->apply(data, i, conn_) );
-      ret = work_->exec( Q->apply(data, i, conn_) );  
-      if (ret.affected_rows()) {
-        invalidate = true;
+    try {
+      for (unsigned int i = 0; i < Q->sql_.size(); ++i) {
+        make_log( "QUERY: " + Q->apply(data, i, conn_) );
+        ret = work_->exec( Q->apply(data, i, conn_) );  
+        if (ret.affected_rows()) {
+          invalidate = true;
+        }
       }
+    } catch (const pqxx::pqxx_exception &e) {
+      throw TunaException(e);
     }
   }
 
@@ -49,11 +56,16 @@ result WorkLink::_execQuery(shared_ptr<Query> Q,
 }
 
 void WorkLink::resetWork() {
-  Guard g(lock_);
-  work_->commit();
-  work_.reset();
-  work_ = shared_ptr<work>(new work(*conn_));
+  try {
+    Guard g(lock_);
+    work_->commit();
+    work_.reset();
+    work_ = shared_ptr<work>(new work(*conn_));
+  } catch (const pqxx::pqxx_exception &e) {
+    throw TunaException(e);
+  }
 }
+
 
 void WorkLink::resolveOneTable(const vector<object_id> &ids, Tuna *T) {
   string query = makePGet(ids, T);

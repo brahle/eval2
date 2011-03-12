@@ -6,7 +6,6 @@
 #include <ctime>
 #include <string>
 #include <cstdio>
-//#include <utility>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -15,13 +14,11 @@
 
 #include <pqxx/pqxx>
 
-#include <tuna_types.h>
-
 #define TUNA_MAX_TABLES 100  
 #define OBJECT_ID_PRINTF "%d"
 
-#include <db/gen-cpp/models_types.h>
-#include <db/gen-cpp/thrift-psql.h>
+#include <tuna_types.h>
+#include <thrift-psql.h>
 
 using namespace pqxx;
 
@@ -71,14 +68,15 @@ namespace eval { namespace tuna {
   class ConnectionPool;
 }}
 
-#include "db/service/link_base.h"
-#include "db/service/query.h"
-#include "db/service/utility.h"
-#include "db/service/db_row.h"
-#include "db/service/db_assoc.h"
-#include "db/service/queue_link.h"
-#include "db/service/work_link.h"
-#include "db/service/c_pool.h"
-#include "db/service/tuna_class.h"
+#include <service/tuna_exception.h>
+#include <service/link_base.h>
+#include <service/query.h>
+#include <service/utility.h>
+#include <service/db_row.h>
+#include <service/db_assoc.h>
+#include <service/queue_link.h>
+#include <service/work_link.h>
+#include <service/c_pool.h>
+#include <service/tuna_class.h>
 
 #endif

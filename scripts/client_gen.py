@@ -171,6 +171,7 @@ def generate_cpp(service):
                 'boost/shared_ptr.hpp']
     
     includes_local = ['gen-cpp/%s.h' % service.name]
+    using_namespace = ['eval::tuna', 'eval::model']
 
     namespace = ['eval']
 
@@ -273,6 +274,9 @@ def generate_cpp(service):
     out.write('\n\n')
 
     out.write('\n'.join(['#include "%s"' % i for i in includes_local]))
+    out.write('\n\n')
+
+    out.write('\n'.join(['using namespace %s;\n' % i for i in using_namespace]))
     out.write('\n\n')
 
     out.write(''.join(['namespace %s { ' % n for n in namespace]))

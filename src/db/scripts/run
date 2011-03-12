@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo 'starting tuna service...'
+
+bin/server &> /tmp/tuna_log &
+
+echo 'output is redirected to /tmp/tuna_log.'
+echo 'make stop to stop the service.'
+
+echo $! > /tmp/tuna_pid

@@ -208,7 +208,7 @@ bool Tuna::update(const string &tb, vector<pair<string,string> > data) {
   } 
 
   if (keys[0] != "id") {
-    throw "first column must be id.";
+    throw TunaException("first column must be id.");
   }
 
   vals.push_back( vals[0] );
@@ -242,7 +242,7 @@ int Tuna::tableMod(const string &tb) {
     if (tablename[i] == tb)
       return i;
   }
-  throw("unknown table.");
+  throw TunaException("unknown table.");
 }
 
 }} // eval::tuna

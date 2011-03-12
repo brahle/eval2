@@ -1,0 +1,21 @@
+#!/bin/bash
+
+out=0
+
+for i in bin/*;
+do 
+  j=`echo $i | sed 's/bin\///g'`
+  f=`head $j.cc -n2 | tail -n 1`
+  c =$(COLUMNS)
+  echo $c
+  echo $COLUMNS '-' ${#f} 
+  $i &> /dev/null
+  if [ $? -eq 0 ]; then
+    echo $f '[OK]'
+  else
+    out=1
+    echo -e $f '\e[1;31m[FAIL]\e[m'
+  fi
+done
+
+echo $out

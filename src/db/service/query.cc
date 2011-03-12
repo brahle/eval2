@@ -56,7 +56,7 @@ Query::Query(const string &action, const string &tb,
  */
 Query::Query(vector<string> lines, Tuna *T) {
   if (lines[0][0] != ':') {
-    throw "query:: Parse error.";
+    throw TunaException("query:: Parse error.");
   }
 
   vector<string> params = split(":", lines[0].substr(1), true);
@@ -96,7 +96,7 @@ string Query::apply(const vector<string> &params, unsigned int part,
   string sol = tmp[0]; 
 
   if (tmp.size() - 1 > params.size()) {
-    throw "query :: not enough params.";
+    throw TunaException("query :: not enough params.");
   }
 
   for (unsigned int i = 1; i < tmp.size(); ++i) {
@@ -136,22 +136,6 @@ void Query::invokeInvalidation(const vector<string> &params, Tuna *T) {
     sql_ = sql_ + " ";
   }
 */
-
-void Query::debug() {
-  cout << "name: " << qname_ << endl;
-  cout << "argc: " << argc_ << endl;
-  for (unsigned int i = 0; i < sql_.size(); ++i) {
-    cout << "sql: " << sql_[i] << endl;
-  }
-  if (invalidate_.size()) {
-    cout << "invalidates:" << endl;
-    for (unsigned int i = 0; i < invalidate_.size(); ++i) {
-      cout << "table " << invalidate_[i].first << " on parameter "
-        << invalidate_[i].second << endl;
-    }
-  }
-  cout << endl;
-}
 
 
 }} // eval::tuna 
