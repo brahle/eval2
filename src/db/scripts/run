@@ -2,7 +2,7 @@
 
 echo 'starting tuna service...'
 
-bin/tnserver &> /tmp/tuna_log &
+_gen/bin/tnserver &> /tmp/tuna_log &
 
 echo 'output is redirected to /tmp/tuna_log.'
 echo 'make stop to stop the service.'

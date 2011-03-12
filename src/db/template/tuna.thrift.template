@@ -1,4 +1,4 @@
-include "../../models/models.thrift"
+include "../../../models/models.thrift"
 
 namespace cpp eval.tuna
 

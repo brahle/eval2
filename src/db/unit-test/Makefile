@@ -8,7 +8,7 @@ SHELL = /bin/bash
 # target programs (components)
 
 OBJ_DIR = ../obj
-INC = ../../../src ../gen-cpp /usr/local/include/thrift ../service ../client ..
+INC = ../../../src ../_gen/gen-cpp /usr/local/include/thrift ../service ../_gen/client ../_gen ..
 DIRS = $(OBJ_DIR) $(BIN_DIR) $(OBJ_TUNA_DIR) $(OBJ_THRIFT_DIR)
  
 LIB = thrift pq pqxx

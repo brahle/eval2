@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "../client/client_radi.h"
+#include "tuna_client.h"
 
 using namespace std;
 using boost::shared_ptr;

@@ -17,8 +17,8 @@
 #define TUNA_MAX_TABLES 100  
 #define OBJECT_ID_PRINTF "%d"
 
-#include <tuna_types.h>
-#include <thrift-psql.h>
+#include "tuna_types.h"
+#include "thrift-psql.h"
 
 using namespace pqxx;
 
@@ -68,15 +68,15 @@ namespace eval { namespace tuna {
   class ConnectionPool;
 }}
 
-#include <service/tuna_exception.h>
-#include <service/link_base.h>
-#include <service/query.h>
-#include <service/utility.h>
-#include <service/db_row.h>
-#include <service/db_assoc.h>
-#include <service/queue_link.h>
-#include <service/work_link.h>
-#include <service/c_pool.h>
-#include <service/tuna_class.h>
+#include "tuna_exception.h"
+#include "link_base.h"
+#include "query.h"
+#include "utility.h"
+#include "db_row.h"
+#include "db_assoc.h"
+#include "queue_link.h"
+#include "work_link.h"
+#include "c_pool.h"
+#include "tuna_class.h"
 
 #endif

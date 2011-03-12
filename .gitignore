@@ -4,6 +4,7 @@ bin/*
 obj/*
 
 src/*/bin/*
+src/*/_gen/*
 src/*/*/bin/*
 
 #ignore thrift compiled sources

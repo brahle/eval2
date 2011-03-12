@@ -1,11 +1,13 @@
 za pokretanje i testiranje tune:
 
-make create_db # (ovo ce napravit backup baze i obrisat je, skripta NE vrati podatke automatski (jos))
+make create_db  #ako prvi puta pokreces onda create_db, ako ne, onda update_db
 make run
 cd unit-test
+make compile
 make run
 
 kako se generiraju fajlovi:
+make generate # ce izgenerirati ispocetka sve ove fajlove.
 
 
           ../models/models.thrift
