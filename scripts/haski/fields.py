@@ -1,8 +1,24 @@
-#/usr/bin/env python
+#!/usr/bin/env python3.2
 # Copyright 2011 Bruno Rahle
 #
-# TODO: Paste copy statement
+# This file is part of Evaluator.
+#
+# Evaluator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# Evaluator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License along with Evaluator. If not, see
+# <http://www.gnu.org/licenses/>.
+
 # TODO: Documentation cleanup
+# TODO: Create separate package and split this to more files
 
 from abc import ABCMeta, abstractmethod
 
@@ -20,6 +36,11 @@ class Field(object):
     def get_value(self):
         """This function returns the value of the field."""
         return self._field
+
+    def stringify(self):
+        """This function returns the 'nice' string representation of the field.
+        """
+        return self.__str__()
 
     def prepare(self):
         """This method prepares the field. It should do all the required
@@ -92,6 +113,10 @@ class StringField(Field):
         """Checks if the string is nonempty."""
         return self._field is not None and len(self._field) > 0
 
+    def stringify(self):
+        """Returns just the raw string."""
+        return self._field
+
 
 class ListField(Field):
     """A class that is used to hold a list. It should be a list of strings
@@ -127,6 +152,10 @@ class ListField(Field):
     def nonempty(self):
         """Checks if the list is nonempty."""
         return self._field is not None and len(self._field) > 0
+
+    def stringify(self):
+        """Returns the list in the format 'first, second, third...'."""
+        return ', '.join(self._field)
 
 
 def main():
