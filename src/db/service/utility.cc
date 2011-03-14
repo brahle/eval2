@@ -77,10 +77,12 @@ vector<string> split(const string &delimiter, const string &t,bool e) {
 }
 
 void make_log(string log) {
+  return;
   cerr << log << endl;
 }
 
 void make_log(string log, object_id id) {
+  return;
   cerr << "object/" << id << ": " << log << endl;
 }
 
@@ -114,6 +116,23 @@ void echo( result r ) {
       printf("%14s ", trunc( r[i][j].as<string>("") , width).c_str());
     printf("\n");
   }
+}
+
+
+void describeStlException(const exception &e) {
+  make_log("! exception is not TunaException, typeid(e).name():");
+  make_log( typeid(e).name() );
+  make_log( e.what() );
+}
+
+void handleStlException(const exception &e) {
+  describeStlException(e);
+  throw;
+}
+
+void handleOtherException() {
+  make_log("EXCEPTION FAULT, ABORTING");
+  exit(1);
 }
 
 }}

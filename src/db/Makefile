@@ -89,6 +89,9 @@ generate :
 run : $(BIN)/tnserver $(CLIENT_H) stop
 	./scripts/run 
 
+terminal_run : $(BIN)/tnserver $(CLIENT_H) stop
+	./scripts/run 1 
+
 stop :
 	./scripts/stop
 

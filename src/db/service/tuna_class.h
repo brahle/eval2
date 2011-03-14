@@ -63,6 +63,8 @@ class Tuna {
    */
   int tableMod(const string &tb);
 
+  void checkIds(const vector<object_id> &ids);
+
   // variables:
 
   string tablename[TUNA_MAX_TABLES];
@@ -93,53 +95,59 @@ class Tuna {
     vector<object_id> _input, fromDb, input = ids;
     T proto;
 
-    for (unsigned int i = 0; i < ids.size(); ++i) {
-      if (tablename[ids[i] % TUNA_MAX_TABLES] != getTableName(proto)) {
-        throw TunaException("id and object type do not match");
-      }
-    }
-    if (input.size() >= (unsigned int) COLLECTOR_PERIOD) {
-      throw TunaException((string)"multiGet query to large." + 
-        "this is adjustable in service/tuna.h:COLLECTOR_PERIOD");
-    }
-    /*
-      check if these ids are objects of type T
-     */
-    while (input.size()) {
-
-      /* check in bigMap which of these ids are already here. */
-      fromDb = bigMap_->resolve(input, this);
+    try {
       /*
-        memcache check should go here.
-        --
-        sync request only those we don't have.
+        check if these ids are objects of type T
        */
-      connPool_->getFreeWorkLink()->resolve(fromDb, this);
+      checkIds(ids);
 
-      Guard g(bigMap_->lock_);
-
-      _input.clear();
-
-      for (unsigned int i = 0; i < input.size(); ++i) {
-        object_id id = input[i];
-        shared_ptr<DbRow> ptr = bigMap_->get(id);
-        /*
-          if requested object isn't in bigMap at all?
-          there is posibility that some other thread changed
-          one of our objects after we made
-          sure that this object is in our bigMap. if this is
-          so, I will do my while loop one more time with modified
-          objects in my input.
-         */
-        if (ptr->flag_ != TUNA_OK && ptr->flag_ != TUNA_NON_EXISTENT) {
-          _input.push_back(id);
-          //make_log( string("OBJECT MODIFIED!") ); 
-        } else if (ptr->flag_ == TUNA_OK) {
-          sol.push_back( *( static_pointer_cast<T, void>(ptr->object_) ) );
-        } 
+      for (unsigned int i = 0; i < ids.size(); ++i) {
+        if (tablename[ids[i] %TUNA_MAX_TABLES] != getTableName(proto)) {
+          throw TunaException("id and object type do not match");
+        }
       }
-      input = _input;
+
+      while (input.size()) {
+
+        /* check in bigMap which of these ids are already here. */
+        fromDb = bigMap_->resolve(input, this);
+        /*
+          memcache check should go here.
+          --
+          sync request only those we don't have.
+         */
+        connPool_->getFreeWorkLink()->resolve(fromDb, this);
+
+        Guard g(bigMap_->lock_);
+
+        _input.clear();
+
+        for (unsigned int i = 0; i < input.size(); ++i) {
+          object_id id = input[i];
+          shared_ptr<DbRow> ptr = bigMap_->get(id);
+          /*
+            if requested object isn't in bigMap at all?
+            there is posibility that some other thread changed
+            one of our objects after we made
+            sure that this object is in our bigMap. if this is
+            so, I will do my while loop one more time with modified
+            objects in my input.
+           */
+          if (ptr->flag_ != TUNA_OK &&ptr->flag_ != TUNA_NON_EXISTENT) {
+            _input.push_back(id);
+            //make_log( string("OBJECT MODIFIED!") ); 
+          } else if (ptr->flag_ == TUNA_OK) {
+            sol.push_back(
+              *( static_pointer_cast<T, void>(ptr->object_) ) );
+          } 
+        }
+        input = _input;
+      }
+
     }
+    catch (const TunaException &e) { throw; }
+    catch (const exception &e) { handleStlException(e); }
+    catch (...) { handleOtherException(); }
 
     // sol.size() == ids.size()
     return sol;

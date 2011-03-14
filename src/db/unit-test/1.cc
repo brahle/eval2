@@ -18,6 +18,7 @@ int test() {
     a.type = 5;
     a.filePath = "test";
     int id = T.insertTask(a);
+    cout << "inserted with id " << id << endl;
     shared_ptr<Task> A = T.getTask(id);
     
     if (A->filePath != a.filePath) {
@@ -27,6 +28,8 @@ int test() {
 
   } catch (const TunaExp &e) {
     cerr << e.why << endl;
+    return 1;
+  } catch (...) {
     return 1;
   }
 

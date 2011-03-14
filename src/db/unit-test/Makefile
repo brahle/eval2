@@ -21,11 +21,11 @@ bin/% : %.cc
 	mkdir -p bin
 	g++ -o$@ $(OBJ_DIR)/thrift/*.o $< $(CFLAGS) $(addprefix -I, $(INC)) $(addprefix -l, $(LIB));
 
-test : run.sh 
-	./run.sh
+test :
+	./run
   
-run : run.sh 
-	./run.sh
+run :
+	./run
   
 compile :
 	for i in *.cc; do j=`echo $$i | sed 's/.cc//g'`; make bin/$$j; done

@@ -14,9 +14,26 @@ QueueLink::QueueLink() {
   make_log("pipeline initialized!");
 }
 
+void QueueLink::resetLink() {
+  // ovdje sam lockan
+  queue<query_id> empty;
+  std::swap( queryQueue_, empty );
+
+  pipeline_->flush();
+  pipeline_.reset();
+
+  resetConnection();
+
+  pipeline_ = shared_ptr<pipeline>(
+    new pipeline(*work_));
+  make_log("pipeline reinitialized!");
+}
+
+
 query_id QueueLink::push(const vector<object_id> &ids, Tuna *T) {
   string arr = toPgArray(ids); 
   int table_id = ids[0] % TUNA_MAX_TABLES;
+
   string query = "execute tuna_pget_" + T->tablename[table_id];
   query = query + "('" + conn_->esc(arr) + "');";
 
@@ -58,7 +75,18 @@ void QueueLink::resolveAllPendingQuerys(Tuna *T) {
   Guard g(lock_);
 
   while(queryQueue_.size()) {
-    pair<query_id, result> ret = pipeline_->retrieve();
+
+    pair<query_id, result> ret;
+
+    try {
+      ret = pipeline_->retrieve();
+    } catch (const exception &e) {
+      make_log("! exception is thrown while retriving from pipeline");
+      describeStlException(e);
+      make_log("! flushing pipeline, all reservation are dissmised");
+      resetLink();
+      return;
+    }
 
     assert(ret.first == queryQueue_.front()); 
 
@@ -67,10 +95,10 @@ void QueueLink::resolveAllPendingQuerys(Tuna *T) {
   }
 }
 
-bool QueueLink::resolveResult(query_id qid,
+int QueueLink::resolveResult(query_id qid,
   result rec, object_id id, Tuna *T) {
 
-  bool sol = false;
+  int sol = 0;
 
   for (unsigned int i = 0; i < rec.size(); ++i) {
     Guard g(T->bigMap_->lock_);
@@ -90,7 +118,7 @@ bool QueueLink::resolveResult(query_id qid,
       sto nije istina.
     */ 
     if (oid == id) {
-      sol = true;
+      sol = TUNA_OBJ_WAS_IN_PIPELINE;
     }
 
     if (ptr->flag_ != TUNA_RESERVED
@@ -106,19 +134,37 @@ bool QueueLink::resolveResult(query_id qid,
   return sol;
 }
 
-bool QueueLink::resolveToQuery(query_id qid, object_id id, Tuna *T) {
+int QueueLink::resolveToQuery(query_id qid, object_id id, Tuna *T) {
   Guard g(lock_);
-  bool sol = false;
+  int sol = 0;
 
   while(queryQueue_.size()) {
-    pair<query_id, result> ret = pipeline_->retrieve();
+    pair<query_id, result> ret;
+    try {
+      ret = pipeline_->retrieve();
+    } catch (const exception &e) {
+      make_log("! exception is thrown while retriving from pipeline");
+      describeStlException(e);
+      make_log("! flushing pipeline, all reservation are dissmised");
+      resetLink();
+      return true; 
+      /*
+        ovdje cu slagat da sam nasao objekt koji sam trazio
+        jer bi ga u suprotnom db_assoc.cc:122 oznacio kao
+        da nepostoji, a mozda postoji no doslo je do greske
+        u pipeline-u
+      */
+    }
+
     assert(ret.first == queryQueue_.front()); 
     queryQueue_.pop();
     
-    if (resolveResult(ret.first, ret.second, id, T)) {
-      sol = true;
+    sol |= resolveResult(ret.first, ret.second, id, T);
+
+    if (ret.first == qid) {
+      sol |= TUNA_QID_WAS_IN_PIPELINE;
+      break;
     }
-    if (ret.first == qid) break;
   }
 
   return sol;

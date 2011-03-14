@@ -72,7 +72,8 @@ void DbAssoc::reserveSent(const vector<object_id> &ids,
   // sad je zakljucan i bigmap i connection pool
   for (unsigned int i = 0; i < ids.size(); ++i) {
     if (!this->assoc_.count(ids[i])) {
-      make_log("OBJECT MODIFIED!");
+      make_log("OBJECT MODIFIED (reservation finished, \
+but object is not in bigMap (garbage collector | thread-modified)!");
       continue;
     }
 
@@ -117,11 +118,29 @@ vector<object_id> DbAssoc::resolve(
         no onda ce se to skuzit kad probam upisat rezultat
         u objekt. ako u resolvanju ne uspijem naic na tocno ovaj
         objekt, oznacujem ga sa NON_EXISTENT.
+
+        stvar dodatno komplicira i mogucnost rusenja pipeline-a
+        u tom slucaju resloveToQuery ce vratiti true, kao da je
+        nasao objekt, no taj objekt nece imati flag TUNA_OK
+        tada invalidiramo objekt (maknemo mu RESERVED flag)
        */
       if (currentFlag == TUNA_RESERVED) {
-        if (!currentLn->resolveToQuery(currentQid, id, T)) {
+        int stat = currentLn->resolveToQuery(currentQid, id, T);
+        /*
+          nasao sam trazeni query, no objekt nije resolvan
+          dakle sigurno ne postoji
+        */
+        if ( stat == TUNA_QID_WAS_IN_PIPELINE ) {
           Guard g(lock_);
           ptr->flag(TUNA_NON_EXISTENT); 
+        } 
+        /*
+          nisam nasao ni query ni objekt
+        */
+        if ( !stat ) {
+          Guard g(lock_);
+          make_log("! invalidiranje uzrokovano greskom u pipeline-u",id);
+          assoc_.erase(id); 
         }
       }
     }

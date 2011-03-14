@@ -17,6 +17,12 @@ void make_log(string log);
 
 void make_log(string log, object_id id);
 
+void describeStlException(const exception &e);
+
+void handleStlException(const exception &e);
+
+void handleOtherException();
+
 string toPgArray(vector<object_id> ids);
 
 string trunc( string str, int w );

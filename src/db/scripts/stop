@@ -1,5 +1,14 @@
 #!/bin/bash
 
-echo 'stoping tuna service...'
-kill -15 `cat /tmp/tuna_pid`
-exit 0
+bin_name="tnserver"
+
+pid=`ps -a | grep $bin_name | cut -b -6`
+
+ps -a | grep $bin_name > /dev/null
+
+if [ $? -eq 0 ]; then
+  echo 'stoping tuna service...'
+  kill -15 $pid 
+else
+  echo 'tuna service not running.'
+fi

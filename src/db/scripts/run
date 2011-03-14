@@ -2,9 +2,15 @@
 
 echo 'starting tuna service...'
 
-_gen/bin/tnserver &> /tmp/tuna_log &
+if [ $# -eq 0 ]; then
+  _gen/bin/tnserver &> /tmp/tuna_log &
 
-echo 'output is redirected to /tmp/tuna_log.'
-echo 'make stop to stop the service.'
+  echo 'output is redirected to /tmp/tuna_log.'
+  echo 'make stop to stop the service.'
 
-echo $! > /tmp/tuna_pid
+  exit 0
+fi
+
+_gen/bin/tnserver
+
+

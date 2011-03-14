@@ -15,19 +15,23 @@ class QueueLink : public Link_base {
 
   QueueLink();
 
+  void resetLink();
+
   query_id push(const vector<object_id> &ids, Tuna *T);
 
   void reserve(const vector<object_id> &ids, Tuna *T);
 
   void resolveAllPendingQuerys(Tuna *T);
 
-  bool resolveResult(query_id qid, result rec, object_id id, Tuna *T);
+  int resolveResult(query_id qid, result rec, object_id id, Tuna *T);
 
   /*
     resolve reservations to some query, and check if
-    object with id %id is resolved!
+    object with id %id is resolved, and if query_id qid
+    was in pipeline %uopce%?
+    returns bitmap OBJ_WAS_IN, QID_WAS_IN
    */
-  bool resolveToQuery(query_id qid, object_id id, Tuna *T);
+  int resolveToQuery(query_id qid, object_id id, Tuna *T);
 
   unsigned int curentQueueSize();
 

@@ -27,8 +27,17 @@ int test() {
 
     T.reserve(ids);
     vector<Task> v = *T.getTasks(ids);
+
     for (int i = 0; i < v.size(); ++i) {
-      if (org[i] != v[i]) return 1;
+      bool ok = 0;
+      for (int j = 0; j < org.size(); ++j) {
+        if (org[j].id == v[i].id) {
+          if (v[i] == org[j]) {
+            ok = 1;
+          }
+        }
+      }
+      if (!ok) return 1;
     }
 
     for(int i = 0; i < ids.size(); ++i) {

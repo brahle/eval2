@@ -29,9 +29,16 @@ void Link_base::init() {
 
   work_ = shared_ptr<work>(new work(*conn_));
 
-  cerr << "starting connection!" << std::endl;
+  make_log("starting connection!");
 }
 
+void Link_base::resetConnection() {
+  // moram bit lockan
+  make_log("resetConnection requested."); 
+  work_.reset();
+  conn_.reset();
+  init();
+}
 
 string Link_base::makePGet(const vector<object_id> &ids, Tuna *T) {
   string arr = toPgArray(ids); 

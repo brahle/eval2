@@ -44,6 +44,9 @@ namespace eval { namespace tuna {
   typedef pipeline::query_id query_id; // from pqxx/pipeline.hxx
   typedef int object_id; // object from db (int64_t)
 
+  const int TUNA_OBJ_WAS_IN_PIPELINE = 1;
+  const int TUNA_QID_WAS_IN_PIPELINE = 2;
+
   const int TUNA_EMPTY = 0;
   const int TUNA_RESERVED = 1;
   const int TUNA_NON_EXISTENT = 2;

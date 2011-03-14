@@ -19,6 +19,8 @@ int test() {
     cout << e.why << endl;
     cout << e.query << endl;
     return 0;
+  } catch (...) {
+    return 1;
   }
 
   return 1;

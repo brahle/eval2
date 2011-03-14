@@ -1,5 +1,5 @@
 /**
-* Copyright 2011 Anton Grbin 
+/ Copyright 2011 Anton Grbin 
 *
 * TODO copy notice
 */
@@ -87,16 +87,21 @@ simpleQ Tuna::simpleQuery(const string &qname,
   waitForLock();
   simpleQ sol;
 
-  result r =
-    connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
+  try {
+    result r =
+      connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
 
 
-  for (unsigned int i = 0; i < r.size(); ++i) {
-    if (!r[i][0].is_null()) {
-      sol.nums.push_back( r[i][0].as<int>() );
-      ++sol.size;
+    for (unsigned int i = 0; i < r.size(); ++i) {
+      if (!r[i][0].is_null()) {
+        sol.nums.push_back( r[i][0].as<int>() );
+        ++sol.size;
+      }
     }
   }
+  catch (const TunaException &e) { throw; }
+  catch (const exception &e) { handleStlException(e); }
+  catch (...) { handleOtherException(); }
 
   return sol;  
 }
@@ -107,16 +112,21 @@ doubleQ Tuna::doubleQuery(const string &qname,
   waitForLock();
   doubleQ sol; 
 
-  result r =
-    connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
+  try {
+    result r =
+      connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
 
-  for (unsigned int i = 0; i < r.size(); ++i) {
-    if (!r[i][0].is_null()) {
-      sol.nums.push_back( r[i][0].as<int>() );
-      sol.strs.push_back( r[i][1].as<string>() );
-      ++sol.size;
+    for (unsigned int i = 0; i < r.size(); ++i) {
+      if (!r[i][0].is_null()) {
+        sol.nums.push_back( r[i][0].as<int>() );
+        sol.strs.push_back( r[i][1].as<string>() );
+        ++sol.size;
+      }
     }
   }
+  catch (const TunaException &e) { throw; }
+  catch (const exception &e) { handleStlException(e); }
+  catch (...) { handleOtherException(); }
 
   return sol;  
 }
@@ -127,24 +137,29 @@ fullQ Tuna::fullQuery(const string &qname,
   waitForLock();
   fullQ sol;
 
-  result r =
-    connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
+  try {
+    result r =
+      connPool_->getFreeWorkLink()->_execQuery(qname, args, this);
 
-  if (!r.size()) {
-    return sol;
-  }
-
-  for (unsigned int i = 0; i < r[0].size(); ++i) {
-    sol.col_name.push_back( string(r[0][i].name()) );
-  }
-
-  for (unsigned int i = 0; i < r.size(); ++i) {
-    vector<string> row(r[i].size());
-    for (unsigned int j = 0; j < r[i].size(); ++j) {
-      row.push_back( r[i][j].as<string>() );
+    if (!r.size()) {
+      return sol;
     }
-    sol.data.push_back( row );
+
+    for (unsigned int i = 0; i < r[0].size(); ++i) {
+      sol.col_name.push_back( string(r[0][i].name()) );
+    }
+
+    for (unsigned int i = 0; i < r.size(); ++i) {
+      vector<string> row(r[i].size());
+      for (unsigned int j = 0; j < r[i].size(); ++j) {
+        row.push_back( r[i][j].as<string>() );
+      }
+      sol.data.push_back( row );
+    }
   }
+  catch (const TunaException &e) { throw; }
+  catch (const exception &e) { handleStlException(e); }
+  catch (...) { handleOtherException(); }
 
   return sol;
 }
@@ -167,9 +182,16 @@ simpleQ Tuna::reserveFrom(const string &qname,
 bool Tuna::destroy(object_id id) {
   string &tb = tablename[id % TUNA_MAX_TABLES];
  
-  result r = connPool_->getFreeWorkLink()->_execQuery(
-    shared_ptr<Query> (new Query("delete", tb, this)),
-    vector<string>(1, stoi(id)), this);
+  result r;
+
+  try {
+    r = connPool_->getFreeWorkLink()->_execQuery(
+      shared_ptr<Query> (new Query("delete", tb, this)),
+      vector<string>(1, stoi(id)), this);
+  }
+  catch (const TunaException &e) { throw; }
+  catch (const exception &e) { handleStlException(e); }
+  catch (...) { handleOtherException(); }
 
   return !!(r.affected_rows());
 }
@@ -178,22 +200,29 @@ object_id Tuna::insert(const string &tb,
   vector<pair<string,string> > data) {
 
   vector<string> keys, vals;
-  
-  for (unsigned int i = 0; i < data.size(); ++i) {
-    if (data[i].first == "id") {
-      make_log("insert: poslao si mi ID kojeg cu izignorirat.");
-      continue;
-    }
-    keys.push_back(data[i].first);
-    vals.push_back(data[i].second);
-  } 
+  object_id sol = -1;
+ 
+  try {
+    for (unsigned int i = 0; i < data.size(); ++i) {
+      if (data[i].first == "id") {
+        make_log("insert: poslao si mi ID kojeg cu izignorirat.");
+        continue;
+      }
+      keys.push_back(data[i].first);
+      vals.push_back(data[i].second);
+    } 
 
-  result r = connPool_->getFreeWorkLink()->_execQuery(
-    shared_ptr<Query> (new Query("insert", tb, keys, this)),
-    vals, this);
-  
-  object_id sol = r[0][0].as<int>();
-  bigMap_->invalidateObject(sol); 
+    result r = connPool_->getFreeWorkLink()->_execQuery(
+      shared_ptr<Query> (new Query("insert", tb, keys, this)),
+      vals, this);
+    
+    sol = r[0][0].as<int>();
+    bigMap_->invalidateObject(sol); 
+
+  }
+  catch (const TunaException &e) { throw; }
+  catch (const exception &e) { handleStlException(e); }
+  catch (...) { handleOtherException(); }
 
   return sol;
 }
@@ -202,24 +231,32 @@ object_id Tuna::insert(const string &tb,
 bool Tuna::update(const string &tb, vector<pair<string,string> > data) {
   vector<string> keys, vals;
   
-  for (unsigned int i = 0; i < data.size(); ++i) {
-    keys.push_back(data[i].first);
-    vals.push_back(data[i].second);
-  } 
+  result r;
 
-  if (keys[0] != "id") {
-    throw TunaException("first column must be id.");
+  try {
+    for (unsigned int i = 0; i < data.size(); ++i) {
+      keys.push_back(data[i].first);
+      vals.push_back(data[i].second);
+    } 
+
+    if (keys[0] != "id") {
+      throw TunaException("first column must be id.");
+    }
+
+    vals.push_back( vals[0] );
+
+    vals.erase(vals.begin());
+    keys.erase(keys.begin());
+
+    r = connPool_->getFreeWorkLink()->_execQuery(
+      shared_ptr<Query> (new Query("update", tb, keys, this)),
+      vals, this);
+
   }
+  catch (const TunaException &e) { throw; }
+  catch (const exception &e) { handleStlException(e); }
+  catch (...) { handleOtherException(); }
 
-  vals.push_back( vals[0] );
-
-  vals.erase(vals.begin());
-  keys.erase(keys.begin());
-
-  result r = connPool_->getFreeWorkLink()->_execQuery(
-    shared_ptr<Query> (new Query("update", tb, keys, this)),
-    vals, this);
-  
   return !!r.affected_rows();
 }
 
@@ -230,11 +267,21 @@ void Tuna::reserve(vector<object_id> ids) {
 
   waitForLock();
 
-  ids = bigMap_->reserve(ids);
-      
-  //memcache!;
+  try {
 
-  connPool_->getFreeQueueLink()->reserve(ids, this);
+    checkIds(ids);
+
+    ids = bigMap_->reserve(ids);
+        
+    //memcache!;
+
+    connPool_->getFreeQueueLink()->reserve(ids, this);
+  
+  } 
+  catch (const TunaException &e) { throw; }
+  catch (const exception &e) { handleStlException(e); }
+  catch (...) { handleOtherException(); }
+
 }
 
 int Tuna::tableMod(const string &tb) {
@@ -243,6 +290,19 @@ int Tuna::tableMod(const string &tb) {
       return i;
   }
   throw TunaException("unknown table.");
+}
+
+void Tuna::checkIds(const vector<object_id> &ids) {
+  for (unsigned int i = 0; i < ids.size(); ++i) {
+    if (!tablename[ids[i] % TUNA_MAX_TABLES].size()) {
+      throw TunaException("object id don't match any table");
+    }
+  }
+
+  if (ids.size() >= (unsigned int) COLLECTOR_PERIOD) {
+    throw TunaException((string)"multiGet query to large." + 
+      "this is adjustable in service/tuna.h:COLLECTOR_PERIOD");
+  }
 }
 
 }} // eval::tuna

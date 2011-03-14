@@ -3,13 +3,23 @@
 out=0
 col=`tput cols`
 argc=$#
+
 make compile &> /tmp/compilation_out
+
 if [ $? -ne 0 ]; then
   cat /tmp/compilation_out
   rm /tmp/compilation_out
   exit 1
 fi
+
 rm /tmp/compilation_out
+
+if [ $argc -eq 1 ]; then
+  if [ $1 = "desc" ]; then
+    head -n3 *.cc
+    exit 0
+  fi
+fi
 
 if [ $argc -eq 0 ]; then
   for i in bin/*;

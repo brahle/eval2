@@ -13,7 +13,7 @@ using boost::shared_ptr;
 int test() {
   eval::TunaClient T("localhost", 9090);
 
-  for (int i = 0; i < 2000; ++i) {
+  for (int i = 0; i < 200; ++i) {
     int id = rand()%1000000;
     try {
       try {
