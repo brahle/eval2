@@ -75,11 +75,15 @@ class IntegerField(NumberField):
         """If the given type is a string, it tries to convert it to an integer
         """
         if isinstance(self._field, str):
-            self._field = int(self._field)
+            self._field = self._field.strip()
+            if self._field == '':
+                self._field = None
+            else:
+                self._field = int(self._field)
 
     def verify(self):
         """Checks if the type is integer."""
-        return isinstance(self._field, int)
+        return isinstance(self._field, int) or self._field is None
 
 
 class FloatField(NumberField):

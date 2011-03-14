@@ -18,6 +18,7 @@
 # <http://www.gnu.org/licenses/>.
 
 from commitmessage import CommitMessage
+from fields import Field
 from invoker import Invoker
 
 import os, re, sys
@@ -49,21 +50,31 @@ class ReviewBoardInvoker(object):
         msg = self.commit_message.fields
         self.command = self.POST_REVIEW_CMD_STR.format(self.revision)
 
+        def exists(dictionary, field):
+            if field not in dictionary:
+                return False
+            elem = dictionary[field]
+            if elem == None:
+                return False
+            if isinstance(elem, Field) and not elem.nonempty():
+                return False
+            return True
+
         if self.publish:
             self.command = self.command + ' -p'
-        if 'title' in msg:
+        if exists(msg, 'title'):
             self.command = self.command + ' --summary=' + str(msg['title'])
-        if 'summary' in msg:
+        if exists(msg, 'summary'):
             file_name = '/tmp/eval2-RB-description'
             self.write_to_file(file_name, msg['summary'].get_value())
             self.command = self.command + ' --description-file=' + file_name
-        if 'reviewers' in msg:
+        if exists(msg, 'reviewers'):
             self.command = (self.command + ' --target-people=' +
                             str(msg['reviewers']))
-        if 'tickets' in msg:
+        if exists(msg, 'tickets'):
             self.command = (self.command + ' --bugs-closed=' +
                             str(msg['tickets']))
-        if 'reviewboard id' in msg:
+        if exists(msg, 'reviewboard id') and msg['reviewboard id'].get_value() != -1:
             self.command = self.command + ' -r' + str(msg['reviewboard id'])
         if self.tests_filename is not None:
             self.command = (self.command + ' --testing-done-file="' +
