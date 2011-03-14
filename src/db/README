@@ -1,3 +1,9 @@
+TODO:
+reserver ne provjeri jeli tablica postoji!
+svi exceptioni moraju biti logirani u log! (catch(...) throw;)
+ako se dogodi greska u pipeline-u, resetiraj konekciju
+
+
 za pokretanje i testiranje tune:
 
 make create_db  #ako prvi puta pokreces onda create_db, ako ne, onda update_db
