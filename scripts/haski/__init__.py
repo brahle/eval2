@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python3.2
 # Copyright 2011 Bruno Rahle
 #
 # This file is part of Evaluator.
@@ -14,8 +14,5 @@
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public
-# License along with Evaluator.  If not, see
+# License along with Evaluator. If not, see
 # <http://www.gnu.org/licenses/>.
-
-# Install required packages
-sudo apt-get install gcc g++ python2.7 git-all postgresql python-django
