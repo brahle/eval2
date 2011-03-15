@@ -8,6 +8,19 @@
 
 INSERT AFTER #include "Tuna.h"
 #include <tuna.h>
+#include <server/TThreadedServer.h>
+END
+
+INSERT AFTER shared_ptr<TProtocolFactory>
+  /*
+END
+
+INSERT AFTER server.serve()
+  */
+ 
+  TThreadedServer th_server(processor, serverTransport, transportFactory, protocolFactory);
+  th_server.serve();
+
 END
 
 INSERT AFTER class TunaHandler
