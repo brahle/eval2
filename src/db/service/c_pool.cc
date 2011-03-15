@@ -25,6 +25,7 @@ ConnectionPool::ConnectionPool() {
 shared_ptr<QueueLink> ConnectionPool::getFreeQueueLink() {
   Guard g(lock_);
   
+  /* za sada neka stoji ovako dok jos lovimo druge greske */
   return queuePool_[0];
 
   unsigned int minQueueSize = 0x3f3f3f3f;
@@ -50,6 +51,7 @@ shared_ptr<QueueLink> ConnectionPool::getFreeQueueLink() {
 shared_ptr<WorkLink> ConnectionPool::getFreeWorkLink() {
   Guard g(lock_);
   
+  /* za sada neka stoji ovako dok jos lovimo druge greske */
   return workPool_[0];
 }
 

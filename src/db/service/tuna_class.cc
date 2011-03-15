@@ -278,6 +278,14 @@ void Tuna::reserve(vector<object_id> ids) {
     connPool_->getFreeQueueLink()->reserve(ids, this);
   
   } 
+  /*
+    is it OK for reserve to throw exceptions?
+    we will enable this for now.. 
+    catch(...) {}
+    if you decide to disable exceptions for reserve()
+    you must change template/tuna.thrift.template
+    on line 53. -> remove throws (1:TunaExp e)
+   */
   catch (const TunaException &e) { throw; }
   catch (const exception &e) { handleStlException(e); }
   catch (...) { handleOtherException(); }

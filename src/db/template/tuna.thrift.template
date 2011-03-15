@@ -50,9 +50,9 @@ service Tuna {
     2: list<string> data 
   ) throws (1:TunaExp e)
 
-  void reserve(1:list<i32> ids)
+  void reserve(1:list<i32> ids) throws (1:TunaExp e)
 
-  bool destroy(1:i32 id)
+  bool destroy(1:i32 id) throws (1:TunaExp e)
 
 //%MODEL_FUNCTIONS%
 

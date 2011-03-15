@@ -379,8 +379,8 @@ def generate_thrift(inp, out, models):
         lines += [
             '  // *** %s ***' % cname,
             '',
-            '%s get%s(1: i32 id),' % (mcname, cname),
-            'list<%s> get%s(1: list<i32> ids),' % (mcname, cnames),
+            '%s get%s(1: i32 id) throws(1: %s),' % (mcname, cname, exp),
+            'list<%s> get%s(1: list<i32> ids) throws(1: %s),' % (mcname, cnames, exp),
             'list<%s> get%sFrom(' % (mcname, cnames),
             '  1: string qname,',
             '  2: list<string> data',

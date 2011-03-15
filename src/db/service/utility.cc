@@ -77,12 +77,10 @@ vector<string> split(const string &delimiter, const string &t,bool e) {
 }
 
 void make_log(string log) {
-  return;
   cerr << log << endl;
 }
 
 void make_log(string log, object_id id) {
-  return;
   cerr << "object/" << id << ": " << log << endl;
 }
 

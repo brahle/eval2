@@ -12,9 +12,9 @@ using boost::shared_ptr;
 
 int test() {
   eval::TunaClient T("localhost", 9090);
+  int mod = -1; // Task ima neki mod od 0..99
 
   for (int i = 0; i < 200; ++i) {
-    if (i%100) {
       bool ok = 0;
       try {
         T.getTask(i);
@@ -25,10 +25,18 @@ int test() {
           ok = 1;
         }
       } catch (...) {
+        cout << "uhvatio sam drugi exception.." << endl;
         return 1;
       }
-      if (!ok) return 1;
-    }
+      /*
+        dakle, ocekivano je da cu dobit jedan od ova dva exception-a
+        ili, cu tocno ubost pravi mod za Task. ako Task ne postoji,
+        dobit cu prazan objekt Task().
+       */
+      if (!ok && i != mod && mod != -1) {
+        mod = i;
+        return 1;
+      }
   }
   return 0;
 }
