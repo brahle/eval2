@@ -13,6 +13,10 @@ class Query {
 
  public:
   
+  Query(const string &sql);
+
+  Query(const vector<object_id> &ids, Tuna *T);
+
   Query(vector<string> lines, Tuna *T);
   
   Query(const string &action, const string &tb, Tuna *T);

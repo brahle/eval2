@@ -84,6 +84,11 @@ void make_log(string log, object_id id) {
   cerr << "object/" << id << ": " << log << endl;
 }
 
+/*
+  output ove funkcije se bez escape-anja umece
+  u sql query koji se poziva. injekcija je nemoguca
+  jer je tip koji se upisuje int.
+ */
 string toPgArray(vector<object_id> ids) {
   char tmp[20];
   string sol = "{";

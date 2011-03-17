@@ -8,8 +8,39 @@
 
 namespace eval { namespace tuna {
 
-Query::Query() {}
+/*
+  plain sql query with no parameters.
+ */
+Query::Query(const string &sql) {
+  argc_ = 0; 
+  qname_ = "_plain_sql__" + sql; 
+  sql_.push_back(sql);
+}
 
+
+/*
+  query which calls tuna_pget_%tablename% with
+  array of object_ids. tablename is excracted from
+  first id in array.
+ */
+Query::Query(const vector<object_id> &ids, Tuna *T) {
+  string &tb = T->tablename[ ids[0] % TUNA_MAX_TABLES ];
+  
+  if (!tb.size()) {
+    throw TunaException( "id is invalid. no table has mod: " +
+      stoi( ids[0] % TUNA_MAX_TABLES ) );
+  }
+
+  argc_ = 0;
+  qname_ = "_tuna_pget_" + toPgArray(ids);
+  sql_.push_back(
+    "execute tuna_pget_" + tb + "('" + toPgArray(ids) + "');"
+  );
+}
+
+/*
+  actions with no parametars: delete
+ */
 Query::Query(const string &action, const string &tb, Tuna *T) {
   if (action=="delete") {
     sql_.push_back("delete from " + tb + " where id = ?;");
@@ -17,10 +48,11 @@ Query::Query(const string &action, const string &tb, Tuna *T) {
     qname_ = "_" + action + "_" + tb;
     invalidate_.push_back( make_pair(tb, 1) );
   }
-
-  //T->querys_[qname_] = shared_ptr<Query>(this);
 }
 
+/*
+  actions with parametars: insert, update
+ */
 Query::Query(const string &action, const string &tb, 
   vector<string> col, Tuna *T) {
 
@@ -48,6 +80,7 @@ Query::Query(const string &action, const string &tb,
     invalidate_.push_back( make_pair(tb, argc_) );
   }
 }
+
 /*
   Constructs query from something like this:
 
@@ -89,8 +122,11 @@ Query::Query(vector<string> lines, Tuna *T) {
   T->querys_[qname_] = shared_ptr<Query>(this);
 }
 
-string Query::apply(const vector<string> &params, unsigned int part,
-  shared_ptr<connection> C) {
+/*
+  replace '?' with params
+ */
+string Query::apply(const vector<string> &params,
+  unsigned int part, shared_ptr<connection> C) {
 
   vector<string> tmp = split("?", sql_[part], true);
   string sol = tmp[0]; 
@@ -106,6 +142,11 @@ string Query::apply(const vector<string> &params, unsigned int part,
   return sol;
 }
 
+/*
+  this is called after executing a query if
+  affected rows != 0. invokeInvalidation will invalidate
+  all objs that query changed.
+ */
 void Query::invokeInvalidation(const vector<string> &params, Tuna *T) {
 
   for (unsigned int i = 0; i < invalidate_.size(); ++i) {
@@ -139,5 +180,3 @@ void Query::invokeInvalidation(const vector<string> &params, Tuna *T) {
 
 
 }} // eval::tuna 
-
-

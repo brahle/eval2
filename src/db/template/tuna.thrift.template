@@ -54,6 +54,10 @@ service Tuna {
 
   bool destroy(1:i32 id) throws (1:TunaExp e)
 
+  string tableName(1:i32 id) throws (1:TunaExp e)
+
+  i32 tableMod(1:string tb) throws (1:TunaExp e)
+
 //%MODEL_FUNCTIONS%
 
 }
