@@ -6,7 +6,7 @@ if [ $# -eq 0 ]; then
   _gen/bin/tnserver &> /tmp/tuna_log &
 
   echo 'output is redirected to /tmp/tuna_log.'
-  echo 'make stop to stop the service.'
+  echo '"make stop" to stop the service.'
 
   exit 0
 fi

@@ -294,7 +294,7 @@ void Tuna::reserve(vector<object_id> ids) {
 
 int Tuna::tableMod(const string &tb) {
   for (unsigned int i = 0; i < TUNA_MAX_TABLES; ++i) {
-    if (tablename[i] == tb)
+    if (tb.size() && tablename[i] == tb)
       return i;
   }
   throw TunaException("unknown table.");

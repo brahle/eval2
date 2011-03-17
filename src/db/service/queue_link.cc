@@ -37,7 +37,7 @@ query_id QueueLink::push(const vector<object_id> &ids, Tuna *T) {
   string query = "execute tuna_pget_" + T->tablename[table_id];
   query = query + "('" + conn_->esc(arr) + "');";
 
-  make_log("ubacujem u pipeline: " + query);
+  make_log("PIPELINE QUERY: " + query);
   return pipeline_->insert(query);
 }
 
@@ -46,6 +46,7 @@ query_id QueueLink::push(const vector<object_id> &ids, Tuna *T) {
   divide ids into groups where every group has ids
   with same mod with TUNA_MAX_TABLES.
   this could be done with map also, which is better?
+  the same code can be found in work_link.cc:118
  */
 void QueueLink::reserve(
   const vector<object_id> &ids, Tuna *T) {

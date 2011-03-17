@@ -59,6 +59,12 @@ END
 ###
     return T_.destroy(id);
 ###
+###
+    _return = T_.tablename[id % TUNA_MAX_TABLES];
+###
+###
+    return T_.tableMod(tb);
+###
 
 // sljedece 5 funkcije se ponove
 // onoliko puta koliko ima tablica

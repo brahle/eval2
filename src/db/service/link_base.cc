@@ -17,9 +17,18 @@ Link_base::Link_base() {
 void Link_base::init() {
   conn_ = shared_ptr<connection>(new connection(dsn_));
   
+  /*
+    ovo je poseban slucaj za query koji nemoze proci
+    kroz work_link jer je ovo konstruktor od work_link-a.
+    potrebno je napravit transactor i biti siguran
+    da je query prosao.
+  */
   try {
     work W(*conn_);
-    // ovo tu preparea tuna_pget_%tablename%
+    /*
+      tuna_refresh() will prepare all the tuna_pget_%tablename%
+      on current connection.
+    */
     W.exec("select tuna_refresh();");
     W.commit();
   } catch (const exception &e) {
@@ -38,20 +47,6 @@ void Link_base::resetConnection() {
   work_.reset();
   conn_.reset();
   init();
-}
-
-string Link_base::makePGet(const vector<object_id> &ids, Tuna *T) {
-  string arr = toPgArray(ids); 
-  int table_id = ids[0] % TUNA_MAX_TABLES;
-  
-  if (!T->tablename[table_id].size()) {
-    throw TunaException(
-      "object_id is invalid. no table has mod: "+stoi(table_id));
-  }
-
-  string query = "execute tuna_pget_" + T->tablename[table_id];
-  query = query + "('" + conn_->esc(arr) + "');";
-  return query;
 }
 
 }} // eval::tuna 

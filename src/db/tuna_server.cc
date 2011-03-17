@@ -62,6 +62,16 @@ class TunaHandler : virtual public TunaIf {
     printf("destroy\n");
   }
 
+  void tableName(std::string& _return, const int32_t id) {
+    _return = T_.tablename[id % TUNA_MAX_TABLES];
+    printf("tableName\n");
+  }
+
+  int32_t tableMod(const std::string& tb) {
+    return T_.tableMod(tb);
+    printf("tableMod\n");
+  }
+
   void getTask(eval::model::Task& _return, const int32_t id) {
     vector<eval::model::Task> sol =
       T_.multiGet<eval::model::Task>(vector<object_id> (1,id));
