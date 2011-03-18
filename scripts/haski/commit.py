@@ -86,11 +86,11 @@ class Commit(object):
         print(invoker.stdout)
         print('[SUCCESS] Lint complete!\n')
         if save_to is not None:
-            if isinstance(save_to, file):
-                save_to.write(invoker.stdout)
-            else:
+            if isinstance(save_to, str):
                 f = open(save_to, "w")
                 f.write(invoker.stdout)
+            else:
+                save_to.write(invoker.stdout)
 
     def review(self, tests_filename=None):
         """Sends this commit to the reviewboard."""

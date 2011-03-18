@@ -76,15 +76,17 @@ Flag that tels haski to skip linting and kill kittens. Do not use.
                                            description=LICENSE_HELP)
     parser_license.set_defaults(action=LicenseAction())
 
-    parser_lint = subparsers.add_parser('lint', help=LINT_HELP, description=LINT_HELP)
+    parser_lint = subparsers.add_parser('lint', help=LINT_HELP,
+            description=LINT_HELP)
     parser_lint.add_argument('-ll', '--lint-log', help=LINT_DESCRIPTION)
     parser_lint.add_argument('-r', '--revision', help=REVISION_DESCRIPTION)
     parser_lint.set_defaults(action=LintAction())
 
-    parser_rb = subparsers.add_parser('review', help=REVIEW_HELP, description=REVIEW_HELP)
+    parser_rb = subparsers.add_parser('review', help=REVIEW_HELP,
+            description=REVIEW_HELP)
     parser_rb.add_argument('-r', '--revision', help=REVISION_DESCRIPTION)
     parser_rb.add_argument('--skip-lint', action='store_true',
-                           help=SKIP_LINT_DESCRIPTION)
+            help=SKIP_LINT_DESCRIPTION)
     parser_rb.set_defaults(action=ReviewAction())
 
     parser.set_defaults(
