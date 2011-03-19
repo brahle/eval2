@@ -44,4 +44,8 @@ echo "Creating a symbolic link in /usr/local/bin/..."
 sudo ln -s $haski /usr/local/bin/haski
 assert $?
 
+echo "Seting the reviewboard url to your git configuration..."
+git config reviewboard.url http://evaluator.skole.hr:8080/reviews/
+assert $?
+
 echo "Success! Haski should now be working!"
