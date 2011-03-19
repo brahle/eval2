@@ -41,7 +41,8 @@ class BaseHaskiAction(object):
         """This function gets the commit wanted commit on which an action is to
         be performed.
         """
-        commit = self._repository.get_commit(namespace.revision)
+        commit = self._repository.get_commit(namespace.revision,
+                                             namespace.ignore_message)
         return commit
 
     def get_repository_location(self):

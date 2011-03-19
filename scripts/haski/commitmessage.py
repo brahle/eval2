@@ -53,11 +53,12 @@ class CommitMessage(object):
                    VALUE_GROUP_NAME + '>.*)')
     FIELD_REGEX_C = re.compile(FIELD_REGEX)
 
-    def __init__(self, message, allowed_fields=None):
+    def __init__(self, message, ignore_message=False, allowed_fields=None):
         if allowed_fields is None:
             self.allowed_fields = self.ALLOWED_FIELDS
         else:
             self.allowed_fields = allowed_fields
+        self.ignore_message = ignore_message
         self.message = message
         self.parse()
 
@@ -72,6 +73,8 @@ class CommitMessage(object):
         allowed_fields = self.allowed_fields
         message = message.split('\n')
         self.fields = dict()
+        if self.ignore_message:
+            return self.fields
 
         allowed_regex = '^\W*('
         for field in allowed_fields:
@@ -88,7 +91,8 @@ class CommitMessage(object):
                 field = match.group(self.FIELD_GROUP_NAME)
                 field_match = allowed_regex_c.match(field)
                 if field_match is not None:
-                    current_field = match.group(self.FIELD_GROUP_NAME).lower().strip()
+                    current_field = match.group(self.FIELD_GROUP_NAME)
+                    current_field = current_field.lower().strip()
                     line = match.group(self.VALUE_GROUP_NAME).strip()
             if current_field in self.fields:
                  new_value = self.fields[current_field] + '\n' + line.rstrip()

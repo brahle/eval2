@@ -20,31 +20,45 @@
 from commitmessage import CommitMessage
 from haskiutils import HaskiException
 from invoker import Invoker
+from lint.cpplinter import CppLinter
 from repositoryinfo import RepositoryInfo
 from reviewboardinvoker import ReviewBoardInvoker
 
-import os, string, sys, re, tempfile
+import os
+import re
+import string
+import subprocess
+import sys
+import tempfile
 
 class CommitException(HaskiException):
     pass
 
 class Commit(object):
-    CPP_LINT_PATH = '/scripts/bin/cpplint'
-    CPP_FILES_REGEX = r'.*\.(cpp|cc|h|hpp)$'
-    CPP_FILES_REGEX_C = re.compile(CPP_FILES_REGEX)
+    LINTERS = [
+        CppLinter,
+    ]
 
     AMEND_STR = 'git commit --amend --file={0} --reset-author --no-verify'
 
     VERIFY_CMD = 'git log {0}'
 
-    def __init__(self, commit_hash, author, time, message, files):
+    def __init__(self, commit_hash, author, time, message, files,
+                 ignore_message=False):
         self.commit_hash = commit_hash
         self.author = author
         self.time = time
-        self.message = CommitMessage(message)
+        self.ignore_message = ignore_message
+        self.message = CommitMessage(message, ignore_message)
         self.files = files
+
         self._ri = RepositoryInfo()
         self._ri.prepare()
+        self._lint_log = tempfile.NamedTemporaryFile('w+', delete=False)
+        self._linters = []
+        for linter in self.LINTERS:
+            self._linters.append(
+                linter(self.commit_hash, self._ri.get_path()))
         self.verify()
 
     def verify(self):
@@ -56,46 +70,31 @@ class Commit(object):
                                   ' does not exist!')
         return True
 
-    def get_cpp_files(self):
-        """Returns all cpp files from this commit."""
-        cpp_files = []
-        for f in self.files:
-            if self.CPP_FILES_REGEX_C.match(f):
-                cpp_files.append(f)
-        return cpp_files
-
-    def lint(self, save_to=None):
+    def lint(self, print_results=True):
         """Lints all files in this commit.
-        BUG: Lints the file from the cache, not the one from the index.
-        TODO: Create lint class
         """
-        if save_to is not None:
-            if isinstance(save_to, str):
-                f = open(save_to, 'a+')
-                f.close()
-        cpp_lint_cmd = self._ri.get_path() + self.CPP_LINT_PATH
-        cpp_files = self.get_cpp_files()
-        if len(cpp_files) == 0:
-            print('[SUCCESS] Nothing to lint!')
-            return
-        cmd = [cpp_lint_cmd]
-        cmd.extend(cpp_files)
-        print('Linting', len(cpp_files), ' cpp files...')
-        invoker = Invoker(cmd)
-        invoker.invoke()
-        print(invoker.stdout)
-        print('[SUCCESS] Lint complete!\n')
-        if save_to is not None:
-            if isinstance(save_to, str):
-                f = open(save_to, "w")
-                f.write(invoker.stdout)
-            else:
-                save_to.write(invoker.stdout)
+        for linter in self._linters:
+            linter.append_results(self._lint_log)
+        if print_results:
+            self._print_lint()
+
+    def get_lint_log_name(self):
+        """Returns the lint log name.
+        """
+        return self._lint_log.name
+
+    def _print_lint(self):
+        """Prints the contents of the lint log file.
+        """
+        self._lint_log.seek(0)
+        for line in self._lint_log:
+            print(line, end='')
 
     def review(self, tests_filename=None):
-        """Sends this commit to the reviewboard."""
-        rbi = ReviewBoardInvoker(self.message, tests_filename=tests_filename,
-                                 revision=self.commit_hash)
+        """Sends this commit to the reviewboard.
+        """
+        rbi = ReviewBoardInvoker(self, revision=self.commit_hash,
+                                 test_filename=self.get_lint_log_name())
         rbi.invoke()
         rb_id = rbi.get_reviewboard_id()
         return rb_id

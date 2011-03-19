@@ -43,7 +43,7 @@ class Repository(object):
         self.info = RepositoryInfo()
         self.info.prepare()
 
-    def get_commit(self, commit_id):
+    def get_commit(self, commit_id, ignore_message):
         # Get the data from git log
         log_cmd = self.GIT_LOG_STR.format(commit_id)
         invoker = Invoker(log_cmd)
@@ -70,7 +70,7 @@ class Repository(object):
         files = [self.info.get_path() + '/' + x
                      for x in invoker.stdout.split('\n')]
 
-        return Commit(commit_hash, author, time, message, files)
+        return Commit(commit_hash, author, time, message, files, ignore_message)
 
     def get_last_commit(self):
         return self.get_commit('HEAD')
