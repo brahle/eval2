@@ -18,4 +18,21 @@
 # <http://www.gnu.org/licenses/>.
 
 # Install required packages
-sudo apt-get install gcc g++ python2.7 git-all postgresql python-django
+
+function assert {
+    if [[ $1 -ne 0 ]]
+    then
+        echo "Error!!! Aborting."
+        exit 0
+    fi
+}
+
+sudo apt-get install gcc g++
+assert $?
+sudo apt-get install python2.6 python-django
+assert $?
+sudo apt-get install git-core
+assert $?
+sudo apt-get install postgresql libpqxx-3.0 libpqxx3-dev
+assert $?
+
