@@ -29,8 +29,8 @@ class ReviewBoardInvoker(object):
     """
     POST_REVIEW_CMD_STR = 'post-review --parent={0}^'
 
-    def __init__(self, commit_message, **kwargs):
-        self.commit_message = commit_message
+    def __init__(self, commit, **kwargs):
+        self.commit = commit
         self.revision = 'HEAD'
         self.tests_filename = None
         self.publish = True
@@ -47,7 +47,7 @@ class ReviewBoardInvoker(object):
         f.close()
 
     def prepare(self):
-        msg = self.commit_message.fields
+        msg = self.commit.message.fields
         self.command = self.POST_REVIEW_CMD_STR.format(self.revision)
 
         def exists(dictionary, field):
