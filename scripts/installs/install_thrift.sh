@@ -18,31 +18,41 @@
 # License along with Evaluator.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# these go without saying
+function assert {
+    if [[ $1 -ne 0 ]]
+    then
+        echo "Error!!! Aborting."
+        exit 0
+    fi
+}
 
-sudo apt-get install libboost-dev libboost-test1.42-dev libevent-dev automake libtool flex bison pkg-config g++ php5-dev python-dev ruby1.8-dev
-
-# also, install java-jdk & python
-
-sudo apt-get install sun-java6-jdk python-twisted python-dev
+sudo apt-get install libboost-dev libboost-test1.42-dev
+assert $?
+sudo apt-get install libevent-dev automake libtool flex bison pkg-config
+assert $?
+sudo apt-get install php5-dev python-dev ruby1.8-dev sun-java6-jdk
+assert $?
+sudo apt-get install python-twisted
+assert $?
 
 wget http://ftp.carnet.hr/misc/apache//incubator/thrift/0.5.0-incubating/thrift-0.5.0.tar.gz
+assert $?
 
 echo 'Extracting..'
 tar xvvf thrift-0.5.0.tar.gz
+assert $?
 
 cd thrift-0.5.0
-
 export JAVA_HOME=/usr/lib/jvm/java-6-sun
-
 sudo ./configure
+assert $?
 
 sudo make
+assert $?
 
 sudo make install
+assert $?
 
 cd ..
-
 sudo rm -rf thrift*
-
 sudo mv /usr/local/lib/libthrift* /lib
