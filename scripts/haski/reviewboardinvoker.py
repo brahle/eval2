@@ -21,7 +21,10 @@ from commitmessage import CommitMessage
 from fields import Field
 from invoker import Invoker
 
-import os, re, sys
+import os
+import re
+import sys
+import tempfile
 
 class ReviewBoardInvoker(object):
     """This class is used to invoke ReviewBoard tool post-review safely.
@@ -41,8 +44,9 @@ class ReviewBoardInvoker(object):
         if 'publish' in kwargs:
             self.publish = kwargs['publish']
 
-    def write_to_file(self, file_name, text):
-        f = open(file_name, 'w')
+    def write_to_file(self, f, text):
+        if isinstance(f, str):
+            f = open(f, 'w')
         f.write(text)
         f.close()
 
@@ -65,9 +69,9 @@ class ReviewBoardInvoker(object):
         if exists(msg, 'title'):
             self.command = self.command + ' --summary=' + str(msg['title'])
         if exists(msg, 'summary'):
-            file_name = '/tmp/eval2-RB-description'
-            self.write_to_file(file_name, msg['summary'].get_value())
-            self.command = self.command + ' --description-file=' + file_name
+            file = tempfile.NamedTemporaryFile('w+', delete=False)
+            self.write_to_file(file, msg['summary'].get_value())
+            self.command = self.command + ' --description-file=' + file.name
         if exists(msg, 'reviewers'):
             self.command = (self.command + ' --target-people=' +
                             str(msg['reviewers']))
@@ -97,7 +101,6 @@ class ReviewBoardInvoker(object):
         match = pattern.match(invoker.stdout)
         if match is None:
             print("[ABORT] post-review failed!!!")
-            print("See ", file_name, " for details")
             sys.exit(1)
         self.reviewboard_id = int(match.group('id'))
 
