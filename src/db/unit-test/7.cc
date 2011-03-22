@@ -27,6 +27,7 @@ int test() {
     } catch (const TunaExp &e) {
       cout << e.why << endl;
     } catch (...) {
+      cout << "uhvatio sam drugi excp" << endl;
       return 1;
     }
   }
@@ -40,3 +41,4 @@ int main() {
 
   return test();
 }
+

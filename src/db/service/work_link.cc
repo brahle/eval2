@@ -24,6 +24,11 @@ result WorkLink::_execQuery(const string &qname,
   return _execQuery(T->querys_[qname], data, T);
 }
 
+/*
+  every, every query which goes to postgres,
+  except those from pipeline will be called
+  from this function.
+ */
 result WorkLink::_execQuery(shared_ptr<Query> Q,
   const vector<string> &data, Tuna *T) {
 
@@ -66,12 +71,16 @@ void WorkLink::resetWork() {
   }
 }
 
+//result WorkLink::_execQuery(shared_ptr<Query> Q,
+//  const vector<string> &data, Tuna *T) {
 
 void WorkLink::resolveOneTable(const vector<object_id> &ids, Tuna *T) {
-  string query = makePGet(ids, T);
-  result rec = work_->exec(query);
-  // ovdje sam zakljucan od resolve.
-  make_log("BLOCKING query: " + query);
+
+  result rec = _execQuery(
+    shared_ptr<Query>(new Query(ids, T)),
+    vector<string>(),
+    T
+  );
 
   Guard g(T->bigMap_->lock_);
 
@@ -83,10 +92,10 @@ void WorkLink::resolveOneTable(const vector<object_id> &ids, Tuna *T) {
     shared_ptr<DbRow> ptr = T->bigMap_->assoc_[id];
 
     ptr->object_ = convertGeneric(tablename, rec[i]);
-
     ptr->flag(TUNA_OK);
   }
 
+  // stil has the lock..
   for (unsigned int i = 0; i < ids.size(); ++i) {
     shared_ptr<DbRow> ptr = T->bigMap_->assoc_[ids[i]];
     if (ptr->flag_ != TUNA_OK) {
@@ -96,9 +105,9 @@ void WorkLink::resolveOneTable(const vector<object_id> &ids, Tuna *T) {
 }
 
 void WorkLink::resolve(const vector<object_id> &ids, Tuna *T) {
+
   vector<object_id> by_tables[TUNA_MAX_TABLES];
   
-  Guard g(lock_);
   /*
     dispatch to tables
    */

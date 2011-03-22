@@ -3,6 +3,7 @@
 
 #include "Tuna.h"
 #include <tuna.h>
+#include <server/TThreadedServer.h>
 #include <protocol/TBinaryProtocol.h>
 #include <server/TSimpleServer.h>
 #include <transport/TServerSocket.h>
@@ -59,6 +60,16 @@ class TunaHandler : virtual public TunaIf {
   bool destroy(const int32_t id) {
     return T_.destroy(id);
     printf("destroy\n");
+  }
+
+  void tableName(std::string& _return, const int32_t id) {
+    _return = T_.tablename[id % TUNA_MAX_TABLES];
+    printf("tableName\n");
+  }
+
+  int32_t tableMod(const std::string& tb) {
+    return T_.tableMod(tb);
+    printf("tableMod\n");
   }
 
   void getTask(eval::model::Task& _return, const int32_t id) {
@@ -188,9 +199,15 @@ int main(int argc, char **argv) {
   shared_ptr<TServerTransport> serverTransport(new TServerSocket(port));
   shared_ptr<TTransportFactory> transportFactory(new TBufferedTransportFactory());
   shared_ptr<TProtocolFactory> protocolFactory(new TBinaryProtocolFactory());
+  /*
 
   TSimpleServer server(processor, serverTransport, transportFactory, protocolFactory);
   server.serve();
+  */
+ 
+  TThreadedServer th_server(processor, serverTransport, transportFactory, protocolFactory);
+  th_server.serve();
+
   return 0;
 }
 

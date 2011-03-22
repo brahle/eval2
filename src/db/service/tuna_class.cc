@@ -278,6 +278,14 @@ void Tuna::reserve(vector<object_id> ids) {
     connPool_->getFreeQueueLink()->reserve(ids, this);
   
   } 
+  /*
+    is it OK for reserve to throw exceptions?
+    we will enable this for now.. 
+    catch(...) {}
+    if you decide to disable exceptions for reserve()
+    you must change template/tuna.thrift.template
+    on line 53. -> remove throws (1:TunaExp e)
+   */
   catch (const TunaException &e) { throw; }
   catch (const exception &e) { handleStlException(e); }
   catch (...) { handleOtherException(); }
@@ -286,7 +294,7 @@ void Tuna::reserve(vector<object_id> ids) {
 
 int Tuna::tableMod(const string &tb) {
   for (unsigned int i = 0; i < TUNA_MAX_TABLES; ++i) {
-    if (tablename[i] == tb)
+    if (tb.size() && tablename[i] == tb)
       return i;
   }
   throw TunaException("unknown table.");

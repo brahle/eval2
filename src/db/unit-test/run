@@ -22,10 +22,13 @@ if [ $argc -eq 1 ]; then
 fi
 
 if [ $argc -eq 0 ]; then
+  tocno=0
+  ukupno=0
   for i in bin/*;
   do 
     j=`echo $i | sed 's/bin\///g'`
     f=`head $j.cc -n2 | tail -n 1`
+    ukupno=$(($ukupno+1))
 
     nap=`echo $col'-15-'${#f} | bc`
 
@@ -33,11 +36,15 @@ if [ $argc -eq 0 ]; then
 
     if [ $? -eq 0 ]; then
       echo -ne $j: $f "\033["$nap"C [OK]\n"
+      tocno=$(($tocno+1))
     else
       out=1
       echo -ne $j: $f "\033["$nap"C\e[1;31m[FAIL]\e[m\n"
     fi
   done
+  echo
+  echo "$tocno/$ukupno passed."
+  exit $(($ukupno-$tocno)) 
 else
   i=bin/$1
   j=`echo $i | sed 's/bin\///g'`
@@ -53,6 +60,6 @@ else
     out=1
     echo -ne $j: $f "\033["$nap"C\e[1;31m[FAIL]\e[m\n"
   fi
+  exit $out
 fi
 
-exit $out

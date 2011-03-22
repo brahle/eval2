@@ -21,8 +21,6 @@ class Link_base {
 
   string dsn_;
 
-  string makePGet(const vector<object_id> &ids, Tuna *T);
-
  protected:
 
 

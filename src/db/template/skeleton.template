@@ -8,6 +8,19 @@
 
 INSERT AFTER #include "Tuna.h"
 #include <tuna.h>
+#include <server/TThreadedServer.h>
+END
+
+INSERT AFTER shared_ptr<TProtocolFactory>
+  /*
+END
+
+INSERT AFTER server.serve()
+  */
+ 
+  TThreadedServer th_server(processor, serverTransport, transportFactory, protocolFactory);
+  th_server.serve();
+
 END
 
 INSERT AFTER class TunaHandler
@@ -45,6 +58,12 @@ END
 ###
 ###
     return T_.destroy(id);
+###
+###
+    _return = T_.tablename[id % TUNA_MAX_TABLES];
+###
+###
+    return T_.tableMod(tb);
 ###
 
 // sljedece 5 funkcije se ponove
