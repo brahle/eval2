@@ -28,6 +28,11 @@ THRIFT_PSQL_CCH = $(THRIFT_PSQL_H) $(THRIFT_PSQL_CC)
 CLIENT_H = $(GEN_DIR)/client/tuna_client.h
 SERVER_SKELETON_CC = $(GEN_CPP_DIR)/server_skeleton_cc
 
+THRIFT_TUNA_OBJS = $(addprefix $(OBJ)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ)/tuna/, $(TUNA_OBJS))
+
+SERVER_CC = $(GEN_DIR)/tuna_thrift_server.cc
+SERVER_O = $(OBJ)/tuna_thrift_server.o
+
 INC = ../../src $(GEN_CPP_DIR) $(GEN_DIR)/client /usr/local/include/thrift service .
 DIRS = $(OBJ) $(BIN) $(OBJ_TUNA) $(OBJ_THRIFT) 
  
@@ -65,10 +70,8 @@ $(CLIENT_H) : $(TUNA_THRIFT)
 	mv tuna_client.h $(CLIENT_H)
  
 # u readmeu je ovo skripta 4)
-tuna_server.cc : $(SERVER_SKELETON_CC) ../models/models.thrift template/skeleton.template
-	$(SCRIPTS)thrift-skeleton.py ../models/models.thrift template/skeleton.template $(SERVER_SKELETON_CC) tuna_server.cc
-  
-
+$(SERVER_CC) : $(SERVER_SKELETON_CC) ../models/models.thrift template/skeleton.template
+	$(SCRIPTS)thrift-skeleton.py ../models/models.thrift template/skeleton.template $(SERVER_SKELETON_CC) $(SERVER_CC)
 
 $(OBJ)/tuna/%.o : service/%.cc service/%.h service/tuna.h 
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $<
@@ -76,15 +79,14 @@ $(OBJ)/tuna/%.o : service/%.cc service/%.h service/tuna.h
 $(OBJ)/thrift/%.o : $(GEN_CPP_DIR)/%.cc $(GEN_CPP_DIR)/*.h
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $<
 
-$(OBJ)/%.o : %.cc $(GEN_CPP_DIR)/* service/* 
+$(OBJ)/%.o : $(GEN_DIR)/%.cc $(GEN_CPP_DIR)/* service/* 
 	g++ -c -o $@ $(CFLAGS) $(addprefix -I , $(INC)) $(addprefix -l, $(LIB)) $<
 
-$(BIN)/tnserver : dirs tuna_server.cc $(OBJ)/tuna_server.o $(THRIFT_PSQL_H) $(addprefix $(OBJ)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ)/tuna/, $(TUNA_OBJS))
-	g++ -o $(BIN)/tnserver $(OBJ)/tuna_server.o $(addprefix $(OBJ)/thrift/, $(THRIFT_OBJS)) $(addprefix $(OBJ)/tuna/, $(TUNA_OBJS)) $(addprefix -l, $(LIB))
+$(BIN)/tnserver : dirs $(SERVER_CC) $(SERVER_O) $(THRIFT_PSQL_H) $(THRIFT_TUNA_OBJS)
+	g++ -o $(BIN)/tnserver $(SERVER_O) $(THRIFT_TUNA_OBJS) $(addprefix -l, $(LIB))
 
-generate :
-	rm -rf $(GEN_DIR) 
-	make tuna_server.cc $(CLIENT_H) &> /dev/null
+generate : clean
+	make $(SERVER_CC) $(CLIENT_H) &> /dev/null
 
 run : $(BIN)/tnserver $(CLIENT_H) stop
 	./scripts/run 
@@ -94,6 +96,9 @@ terminal_run : $(BIN)/tnserver $(CLIENT_H) stop
 
 stop :
 	./scripts/stop
+
+clean :
+	rm -rf $(GEN_DIR) 
 
 create_db : sql/tables.sql
 	cat sql/init/create_db.sql > /tmp/temp.sql
